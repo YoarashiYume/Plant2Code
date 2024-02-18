@@ -19,7 +19,7 @@ void SignalReader::copyPrefixData(const prefix_type& other)
 {
 	prefixData = other;
 	/* 
-	—ÓÚËÓ‚Í‡ „‡‡ÌÚËÛÂÚ, ˜ÚÓ ËÁÌ‡˜‡Î¸ÌÓ ·Û‰ÛÚ ÔÓ‚ÂÂÌ˚ ·ÓÎÂÂ ‰ÎËÌÌ˚Â ÚËÔ˚
+	–°–æ—Ä—Ç–∏—Ä–æ–≤–∫–∞ –≥–∞—Ä–∞–Ω—Ç–∏—Ä—É–µ—Ç, —á—Ç–æ –∏–∑–Ω–∞—á–∞–ª—å–Ω–æ –±—É–¥—É—Ç –ø—Ä–æ–≤–µ—Ä–µ–Ω—ã –±–æ–ª–µ–µ –¥–ª–∏–Ω–Ω—ã–µ —Ç–∏–ø—ã
 	*/
 	std::ranges::sort(prefixData.innerSignalPrefix, sortNames);
 	std::ranges::sort(prefixData.outputSignalPrefix, sortNames);
@@ -33,11 +33,11 @@ std::string SignalReader::defineInitError() const
 {
 	std::string error;
 	if (nameIndex == -1)
-		error = "ŒÚÒÛÚÒÚ‚ÛÂÚ ÍÓÎÓÌÍ‡ Ò Ì‡Á‚‡ÌËÂÏ ÔÂÂÏÂÌÌ˚ı.";
+		error = "–û—Ç—Å—É—Ç—Å—Ç–≤—É–µ—Ç –∫–æ–ª–æ–Ω–∫–∞ —Å –Ω–∞–∑–≤–∞–Ω–∏–µ–º –ø–µ—Ä–µ–º–µ–Ω–Ω—ã—Ö.";
 	if (valueIndex == -1)
-		error += "ŒÚÒÛÚÒÚ‚ÛÂÚ ÍÓÎÓÌÍ‡ ÒÓ ÁÌ‡˜ÂÌËˇÏË ‰Îˇ ÍÓÌÒÚ‡ÌÚ.";
+		error += "–û—Ç—Å—É—Ç—Å—Ç–≤—É–µ—Ç –∫–æ–ª–æ–Ω–∫–∞ —Å–æ –∑–Ω–∞—á–µ–Ω–∏—è–º–∏ –¥–ª—è –∫–æ–Ω—Å—Ç–∞–Ω—Ç.";
 	if (typeIndex == -1)
-		error += "ŒÚÒÛÚÒÚ‚ÛÂÚ ÍÓÎÓÌÍ‡ Ò ÚËÔ‡ÏË ‰‡ÌÌ˚ı.";
+		error += "–û—Ç—Å—É—Ç—Å—Ç–≤—É–µ—Ç –∫–æ–ª–æ–Ω–∫–∞ —Å —Ç–∏–ø–∞–º–∏ –¥–∞–Ω–Ω—ã—Ö.";
 	return error;
 }
 
@@ -59,7 +59,7 @@ std::int32_t SignalReader::defineData(const SignalReadProperty::col_variant_type
 RAW_SIGNAL_TYPE SignalReader::defineSignalType(const std::string& plantumlType) const
 {
 	/*
-	–Â‡ÎËÁ‡ˆËˇ ÌÂ ÔÓ‰‡ÁÛÏÂ‚‡ÂÚ, ˜ÚÓ ‡ÁÎË˜Ì˚Â ÚËÔ˚ ÒË„Ì‡Î˚ ËÏÂ˛Ú Ó‰ËÌ‡ÍÓ‚˚Â/ÔÂÙËÍÒ˚, ‚ıÓ‰ˇ˘ËÂ ‚ ÒÓÒÚ‡‚ ÔÂÙËÍÒ‡ ‰Û„Ëı ÚËÔÓ‚
+	–†–µ–∞–ª–∏–∑–∞—Ü–∏—è –Ω–µ –ø–æ–¥—Ä–∞–∑—É–º–µ–≤–∞–µ—Ç, —á—Ç–æ —Ä–∞–∑–ª–∏—á–Ω—ã–µ —Ç–∏–ø—ã —Å–∏–≥–Ω–∞–ª—ã –∏–º–µ—é—Ç –æ–¥–∏–Ω–∞–∫–æ–≤—ã–µ/–ø—Ä–µ—Ñ–∏–∫—Å—ã, –≤—Ö–æ–¥—è—â–∏–µ –≤ —Å–æ—Å—Ç–∞–≤ –ø—Ä–µ—Ñ–∏–∫—Å–∞ –¥—Ä—É–≥–∏—Ö —Ç–∏–ø–æ–≤
 	*/
 	if (checkPrefix(plantumlType, prefixData.inputSignalPrefix))
 		return RAW_SIGNAL_TYPE::INPUT_SIGNAL;
@@ -104,7 +104,7 @@ bool SignalReader::open(const std::string& path)
 	stream.reset(new std::ifstream{ currentPath });
 	bool isOpen{ stream->is_open() };
 	if (isOpen == false)
-		this->log(LOG_TYPE::WARNING, std::format("ÕÂ‚ÓÁÏÓÊÌÓ ÓÚÍ˚Ú¸ Ù‡ÈÎ \"{}\"", currentPath));
+		this->log(LOG_TYPE::WARNING, std::format("–ù–µ–≤–æ–∑–º–æ–∂–Ω–æ –æ—Ç–∫—Ä—ã—Ç—å —Ñ–∞–π–ª \"{}\"", currentPath));
 	return isOpen;
 }
 
@@ -128,15 +128,15 @@ bool SignalReader::initCSVHeader(const SignalReadProperty& property)
 		valueIndex = defineData(property.variablesColValueVariant, splittedHeader);
 
 		if (titleIndex == -1)
-			this->log(LOG_TYPE::WARNING, std::format("ÕÂÍÓÂÍÚÌÓÂ Á‡ÔÓÎÌÂÌËÂ Ù‡ÈÎ‡ \"{}\". ŒÚÒÛÚÒÚ‚Û˛Ú ‰‡ÌÌ˚Â Ó Ì‡Á‚‡ÌËË ÒË„Ì‡ÎÓ‚.", currentPath));
+			this->log(LOG_TYPE::WARNING, std::format("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω–æ–µ –∑–∞–ø–æ–ª–Ω–µ–Ω–∏–µ —Ñ–∞–π–ª–∞ \"{}\". –û—Ç—Å—É—Ç—Å—Ç–≤—É—é—Ç –¥–∞–Ω–Ω—ã–µ –æ –Ω–∞–∑–≤–∞–Ω–∏–∏ —Å–∏–≥–Ω–∞–ª–æ–≤.", currentPath));
 
 		auto isCorrectInit = ((nameIndex != -1) && ((valueIndex != -1) || (typeIndex != -1)));
 		if (isCorrectInit == false)
-			this->log(LOG_TYPE::ERROR, std::format("ÕÂÍÓÂÍÚÌÓÂ Á‡ÔÓÎÌÂÌËÂ Ù‡ÈÎ‡ \"{}\". ÕÂ‚ÓÁÏÓÊÌÓ Ò˜ËÚ‡Ú¸ ÒË„Ì‡Î˚. {}", currentPath, defineInitError()));
+			this->log(LOG_TYPE::ERROR, std::format("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω–æ–µ –∑–∞–ø–æ–ª–Ω–µ–Ω–∏–µ —Ñ–∞–π–ª–∞ \"{}\". –ù–µ–≤–æ–∑–º–æ–∂–Ω–æ —Å—á–∏—Ç–∞—Ç—å —Å–∏–≥–Ω–∞–ª—ã. {}", currentPath, defineInitError()));
 		return isCorrectInit;
 	}
 	else
-		this->log(LOG_TYPE::WARNING, std::format("œÓ‚ÚÓÌ‡ˇ ËÌËˆË‡ÎËÁ‡ˆËˇ Ù‡ÈÎ‡ \"{}\"", currentPath));
+		this->log(LOG_TYPE::WARNING, std::format("–ü–æ–≤—Ç–æ—Ä–Ω–∞—è –∏–Ω–∏—Ü–∏–∞–ª–∏–∑–∞—Ü–∏—è —Ñ–∞–π–ª–∞ \"{}\"", currentPath));
 	return false;
 }
 
@@ -163,7 +163,7 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		switch (currentType)
 		{
 		case RAW_SIGNAL_TYPE::UNKMOWN:
-			this->log(LOG_TYPE::ERROR, std::format("ÕÂÍÓÂÍÚÌÓÂ Á‡ÔÓÎÌÂÌËÂ Ù‡ÈÎ‡ \"{}\". ÕÂ‚ÓÁÏÓÊÌÓ ÓÔÂ‰ÂÎËÚ¸ ÚËÔ ÒË„Ì‡Î‡ {}", currentPath, splittedLineCSV.at(nameIndex)));
+			this->log(LOG_TYPE::ERROR, std::format("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω–æ–µ –∑–∞–ø–æ–ª–Ω–µ–Ω–∏–µ —Ñ–∞–π–ª–∞ \"{}\". –ù–µ–≤–æ–∑–º–æ–∂–Ω–æ –æ–ø—Ä–µ–¥–µ–ª–∏—Ç—å —Ç–∏–ø —Å–∏–≥–Ω–∞–ª–∞ {}", currentPath, splittedLineCSV.at(nameIndex)));
 			return signalInfo;
 		case RAW_SIGNAL_TYPE::INPUT_SIGNAL:
 		case RAW_SIGNAL_TYPE::OUTPUT_SIGNAL:
@@ -171,7 +171,7 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		case RAW_SIGNAL_TYPE::STRUCT:
 			signalInfo.reset(new RawSignalData);
 			if (typeIndex == -1)
-				this->log(LOG_TYPE::ERROR, std::format("‘‡ÈÎ \"{}\" ÌÂ ÒÓ‰ÂÊËÚ ‰‡ÌÌ˚Â Ó ÚËÔÂ ÒË„Ì‡Î‡ {}.", currentPath, signalName));
+				this->log(LOG_TYPE::ERROR, std::format("–§–∞–π–ª \"{}\" –Ω–µ —Å–æ–¥–µ—Ä–∂–∏—Ç –¥–∞–Ω–Ω—ã–µ –æ —Ç–∏–ø–µ —Å–∏–≥–Ω–∞–ª–∞ {}.", currentPath, signalName));
 			else
 				dynamic_cast<RawSignalData*>(signalInfo.get())->type = splittedLineCSV.at(typeIndex);
 			break;
@@ -181,7 +181,7 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		case RAW_SIGNAL_TYPE::CONST:
 			signalInfo.reset(new RawConstData);
 			if (valueIndex == -1)
-				this->log(LOG_TYPE::ERROR, std::format("‘‡ÈÎ \"{}\" ÌÂ ÒÓ‰ÂÊËÚ ‰‡ÌÌ˚Â Ó ÁÌ‡˜ÂÌËË ÍÓÌÒÚ‡ÌÚ˚ {}.", currentPath, signalName));
+				this->log(LOG_TYPE::ERROR, std::format("–§–∞–π–ª \"{}\" –Ω–µ —Å–æ–¥–µ—Ä–∂–∏—Ç –¥–∞–Ω–Ω—ã–µ –æ –∑–Ω–∞—á–µ–Ω–∏–∏ –∫–æ–Ω—Å—Ç–∞–Ω—Ç—ã {}.", currentPath, signalName));
 			else
 				dynamic_cast<RawConstData*>(signalInfo.get())->value = splittedLineCSV.at(typeIndex);
 			break;
@@ -189,12 +189,12 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		signalInfo->signalType = currentType;
 		signalInfo->name = signalName;
 		if (titleIndex == -1)
-			this->log(LOG_TYPE::WARNING, std::format("‘‡ÈÎ \"{}\" ÌÂ ÒÓ‰ÂÊËÚ ‰‡ÌÌ˚Â Ó Ì‡Á‚‡ÌËË ÒË„Ì‡Î‡ {}.", currentPath, signalInfo->name));
+			this->log(LOG_TYPE::WARNING, std::format("–§–∞–π–ª \"{}\" –Ω–µ —Å–æ–¥–µ—Ä–∂–∏—Ç –¥–∞–Ω–Ω—ã–µ –æ –Ω–∞–∑–≤–∞–Ω–∏–∏ —Å–∏–≥–Ω–∞–ª–∞ {}.", currentPath, signalInfo->name));
 		else
 			signalInfo->title = splittedLineCSV.at(titleIndex);
 		return signalInfo;
 	}
 	else
-		this->log(LOG_TYPE::ERROR, std::format("ÕÂÍÓÂÍÚÌÓÂ Á‡ÔÓÎÌÂÌËÂ Ù‡ÈÎ‡ \"{}\". ÕÂ‚ÓÁÏÓÊÌÓ Ò˜ËÚ‡Ú¸ ÒË„Ì‡Î. {}", currentPath, defineInitError()));
+		this->log(LOG_TYPE::ERROR, std::format("–ù–µ–∫–æ—Ä—Ä–µ–∫—Ç–Ω–æ–µ –∑–∞–ø–æ–ª–Ω–µ–Ω–∏–µ —Ñ–∞–π–ª–∞ \"{}\". –ù–µ–≤–æ–∑–º–æ–∂–Ω–æ —Å—á–∏—Ç–∞—Ç—å —Å–∏–≥–Ω–∞–ª. {}", currentPath, defineInitError()));
 	return signalInfo;
 }
