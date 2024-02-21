@@ -4,11 +4,11 @@ SignalsHandler::SignalsHandler()
 {
     table.reset(new SignalTable);
 	readProperty.separatorCSV = ';';
-	readProperty.variablesColNameVariant = { "РћР±РѕР·РЅР°С‡РµРЅРёРµ", "РћР±РѕР·РЅР°С‡РµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ", "РћР±РѕР·РЅР°С‡РµРЅРёРµ СЃРёРіРЅР°Р»Р°" };
-	readProperty.variablesColTitleVariant = { "РќР°РёРјРµРЅРѕРІР°РЅРёРµ", "РќР°Р·РІР°РЅРёРµ СЃРёРіРЅР°Р»Р°", "РќР°Р·РІР°РЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ" };
-	readProperty.variablesColTypeVariant = { "РўРёРї РґР°РЅРЅС‹С…", "\"РўРёРї РґР°РЅРЅС‹С…\"" };
-	readProperty.variablesColValueVariant = { "Р—РЅР°С‡РµРЅРёРµ" };
-	readProperty.prefixes.ignoreVariant = { "Р РµР·РµСЂРІ" };
+	readProperty.variablesColNameVariant = { "Обозначение", "Обозначение состояния", "Обозначение сигнала" };
+	readProperty.variablesColTitleVariant = { "Наименование", "Название сигнала", "Название состояния" };
+	readProperty.variablesColTypeVariant = { "Тип данных", "\"Тип данных\"" };
+	readProperty.variablesColValueVariant = { "Значение" };
+	readProperty.prefixes.ignoreVariant = { "Резерв" };
 	readProperty.prefixes.innerSignalPrefix = { "Z" };
 	readProperty.prefixes.outputSignalPrefix = { "Y" };
 	readProperty.prefixes.inputSignalPrefix = { "X" };

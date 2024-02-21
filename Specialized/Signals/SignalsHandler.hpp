@@ -11,7 +11,7 @@ private:
 	SignalReadProperty readProperty;
 public:
 	SignalsHandler();
-	// вЂќРЅР°СЃР»РµРґРѕРІР°РЅРѕ С‡РµСЂРµР· ISignalsHandler
+	// Унаследовано через ISignalsHandler
 	bool readSignals(const std::string& path) override;
 	bool readSignals(const std::vector<std::string>& paths) override;
 	void clearData() override;

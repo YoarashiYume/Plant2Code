@@ -16,7 +16,7 @@ bool SignalTable::addStructData(store_type newSignal)
 		substringCount(newSignal->name, arraySize) * std::count(arraySize.begin(), arraySize.end(), structSeparator);
 	if (separatorCount >= 2)
 	{
-		this->log(LOG_TYPE::ERROR, std::format("РЎС‚СЂСѓРєС‚СѓСЂР° \"{}\" РёРјРµРµС‚ РЅРµСЃРєРѕР»СЊРєРѕ РѕР±СЂР°С‰РµРЅРёР№ Рє РїРѕР»СЏРј.", newSignal->name));
+		this->log(LOG_TYPE::ERROR, std::format("Структура \"{}\" имеет несколько обращений к полям.", newSignal->name));
 		return false;
 	}
 	std::string structName = newSignal->name.substr(0, newSignal->name.find(structSeparator));
@@ -25,11 +25,11 @@ bool SignalTable::addStructData(store_type newSignal)
 		auto emplace = structData.emplace(structName, new StructData);
 		if (emplace.second == false && emplace.first->second->title.size())
 		{
-			this->log(LOG_TYPE::WARNING, std::format("Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ \"{}\". Р”СѓР±Р»РёСЂСѓРµРјР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅР°.", newSignal->name));
+			this->log(LOG_TYPE::WARNING, std::format("Дублирование структуры \"{}\". Дублируемая структура не будет добавлена.", newSignal->name));
 			return false;
 		}
 		else if (emplace.second == false)
-			//Р”РѕРїСѓСЃРєР°РµРј, С‡С‚Рѕ РёР·РЅР°С‡Р°Р»СЊРЅРѕ РѕР±СЉСЏРІР»РµРЅРѕ РїРѕР»Рµ, Р° РЅРµ СЃС‚СЂСѓРєС‚СѓСЂР°
+			//Допускаем, что изначально объявлено поле, а не структура
 			emplace.first->second->title = newSignal->title;
 		else
 		{
@@ -46,7 +46,7 @@ bool SignalTable::addStructData(store_type newSignal)
 	newSignal->name = newSignal->name.substr(newSignal->name.find(structSeparator)+1);
 	if (dynamic_cast<StructData*>(structData.at(structName).get())->fields.contains(newSignal->name))
 	{
-		this->log(LOG_TYPE::WARNING, std::format("РЎС‚СЂСѓРєС‚СѓСЂР° \"{}\" РёРјРµРµС‚ РґСѓР±Р»РёСЂСѓРµРјРѕРµ РїРѕР»Рµ \"{}\". Р”СѓР±Р»РёРєР°С‚ Р±СѓРґРµС‚ РїСЂРѕРёРіРЅРѕСЂРёСЂРѕРІР°РЅ.", structName + structSeparator + newSignal->name
+		this->log(LOG_TYPE::WARNING, std::format("Структура \"{}\" имеет дублируемое поле \"{}\". Дубликат будет проигнорирован.", structName + structSeparator + newSignal->name
 			, newSignal->name));
 	}
 	else
@@ -60,7 +60,7 @@ bool SignalTable::addStructData(store_type newSignal)
 			dynamic_cast<StructData*>(structData.at(structName).get())->fields.emplace(newSignal->name, data);
 		}
 		else
-			this->log(LOG_TYPE::WARNING, std::format("РЎС‚СЂСѓРєС‚СѓСЂР° \"{}\" РёРјРµРµС‚ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРµ РїРѕР»Рµ \"{}\".", structName + structSeparator + newSignal->name
+			this->log(LOG_TYPE::WARNING, std::format("Структура \"{}\" имеет некорректное поле \"{}\".", structName + structSeparator + newSignal->name
 				, newSignal->name));
 		newSignal->name = structName + structSeparator + newSignal->name;
 	}
@@ -69,7 +69,7 @@ bool SignalTable::addStructData(store_type newSignal)
 
 SignalData::element_count_type SignalTable::getElementCountFromName(std::string& name, const std::string realName)
 {
-	//+1 Рў.Рє. РµСЃР»Рё [0], С‚Рѕ СЂР°Р·РјРµСЂ 1
+	//+1 Т.к. если [0], то размер 1
 	return getElementCount(name, realName) + 1;
 }
 
@@ -79,8 +79,8 @@ SignalData::element_count_type SignalTable::getElementCount(std::string& type, c
 	auto endArrayPos = type.find(arrayEnd);
 	if (startArrayPos == std::string::npos || endArrayPos == std::string::npos)
 	{
-		this->log(LOG_TYPE::WARNING, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РїРѕР»РЅРµРЅ СЃРёРіРЅР°Р» \"{}\" - РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРµ РѕР±СЂР°С‰РµРЅРёРµ РїРѕ РёРЅРґРµРєСЃСѓ РјР°СЃСЃРёРІР°."
-			" РЎРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", name));
+		this->log(LOG_TYPE::WARNING, std::format("Некорректно заполнен сигнал \"{}\" - некорректное обращение по индексу массива."
+			" Сигнал не будет добавлен.", name));
 		return false;
 	}
 	SignalData::element_count_type elementCount{ 1 };
@@ -91,8 +91,8 @@ SignalData::element_count_type SignalTable::getElementCount(std::string& type, c
 	}
 	catch (...)
 	{
-		this->log(LOG_TYPE::WARNING, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РїРѕР»РЅРµРЅ СЃРёРіРЅР°Р» \"{}\" - РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРµ РѕР±СЂР°С‰РµРЅРёРµ РїРѕ РёРЅРґРµРєСЃСѓ РјР°СЃСЃРёРІР°."
-			" РЎРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", name));
+		this->log(LOG_TYPE::WARNING, std::format("Некорректно заполнен сигнал \"{}\" - некорректное обращение по индексу массива."
+			" Сигнал не будет добавлен.", name));
 		return 0;
 	}
 	type = removePtrFromType(type);
@@ -105,8 +105,8 @@ SignalData::element_count_type SignalTable::getElementCountFromOneLinesSignal(st
 	auto endArrayPos = name.find(arrayEnd);
 	if (startArrayPos == std::string::npos || endArrayPos == std::string::npos)
 	{
-		this->log(LOG_TYPE::WARNING, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РїРѕР»РЅРµРЅ СЃРёРіРЅР°Р» \"{}\" - РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ С‚РёРїР°."
-			" РЎРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", realName));
+		this->log(LOG_TYPE::WARNING, std::format("Некорректно заполнен сигнал \"{}\" - некорректное заполнение типа."
+			" Сигнал не будет добавлен.", realName));
 		return false;
 	}
 	SignalData::element_count_type elementCount{ 1 };
@@ -118,8 +118,8 @@ SignalData::element_count_type SignalTable::getElementCountFromOneLinesSignal(st
 	}
 	catch (...)
 	{
-		this->log(LOG_TYPE::WARNING, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РїРѕР»РЅРµРЅ СЃРёРіРЅР°Р» \"{}\" - РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ С‚РёРїР°."
-			" РЎРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", realName));
+		this->log(LOG_TYPE::WARNING, std::format("Некорректно заполнен сигнал \"{}\" - некорректное заполнение типа."
+			" Сигнал не будет добавлен.", realName));
 		return 0;
 	}
 	name = removePtrFromType(name);
@@ -130,7 +130,7 @@ bool SignalTable::checkExistSignal(RawSignalData* newSignal, SignalData* oldSign
 {
 	if (newSignal->type != oldSignal->type || oldSignal->isPtr == false)
 	{
-		this->log(LOG_TYPE::ERROR, std::format("РЎРёРіРЅР°Р» \"{}\" РёРјРµРµС‚ СЂР°Р·Р»РёС‡РЅС‹Рµ С‚РёРїС‹.", newSignal->name));
+		this->log(LOG_TYPE::ERROR, std::format("Сигнал \"{}\" имеет различные типы.", newSignal->name));
 		return false;
 	}
 	if (oldSignal->elementCount < newElementCount)
@@ -143,10 +143,10 @@ bool SignalTable::addSignalData(store_type newSignal, storage_type& storage, con
 	auto emplaceResult{ true };
 	if (newSignal->name.find(structSeparator) != std::string::npos)
 	{
-		//РЎС‡РёС‚С‹РІР°СЋС‚СЃСЏ СЃРёРіРЅР°Р»С‹ РІРёРґР° Signal[0..24]
+		//Считываются сигналы вида Signal[0..24]
 		if (newSignal->name.find(structSeparator) != newSignal->name.find(arraySize))
 		{
-			log(LOG_TYPE::ERROR, std::format("РЎРёРіРЅР°Р» \"{}\" СЃРѕРґРµСЂР¶РёС‚ СЃРёРјРІРѕР» РѕР±СЂР°С‰РµРЅРёСЏ Рє СЃС‚СЂСѓРєС‚СѓСЂРµ \"{}\"", realName, structSeparator));
+			log(LOG_TYPE::ERROR, std::format("Сигнал \"{}\" содержит символ обращения к структуре \"{}\"", realName, structSeparator));
 			return false;
 		}
 		SignalData::element_count_type elementCountInName{ getElementCountFromOneLinesSignal(newSignal->name, realName)};
@@ -156,15 +156,15 @@ bool SignalTable::addSignalData(store_type newSignal, storage_type& storage, con
 			return false;
 		if (elementCountInName != elementCountInType)
 		{
-			this->log(LOG_TYPE::WARNING, std::format("CРёРіРЅР°Р» \"{}\" - РёРјРµРµС‚ СЂР°Р·Р»РёС‡РЅС‹Рµ СЂР°Р·РјРµСЂС‹ РјР°СЃСЃРёРІР° {} Рё {}."
-				" РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р±РѕР»СЊС€РµРµ Р·РЅР°С‡РµРЅРёРµ.", realName, std::to_string(elementCountInName), std::to_string(elementCountInType)));
+			this->log(LOG_TYPE::WARNING, std::format("Cигнал \"{}\" - имеет различные размеры массива {} и {}."
+				" Используется большее значение.", realName, std::to_string(elementCountInName), std::to_string(elementCountInType)));
 			elementCountInName = elementCountInType = elementCountInType > elementCountInName ? elementCountInType : elementCountInName;
 		}
 		emplaceResult = storage.emplace(newSignal->name, createFullSignal(newSignal,true, elementCountInName)).second;
 	}
 	else
 	{
-		//РЎС‡РёС‚С‹РІР°СЋС‚СЃСЏ СЃРёРіРЅР°Р»С‹ РІРёРґР° Signal[24]
+		//Считываются сигналы вида Signal[24]
 		auto startArrayPos = newSignal->name.find(arrayStart);
 		auto endArrayPos = newSignal->name.find(arrayEnd);
 		
@@ -172,8 +172,8 @@ bool SignalTable::addSignalData(store_type newSignal, storage_type& storage, con
 		{
 			if (startArrayPos == std::string::npos || endArrayPos == std::string::npos)
 			{
-				this->log(LOG_TYPE::WARNING, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РїРѕР»РЅРµРЅ СЃРёРіРЅР°Р» \"{}\" - РЅРµРєРѕСЂСЂРµРєС‚РЅРѕРµ РѕР±СЂР°С‰РµРЅРёРµ РїРѕ РёРЅРґРµРєСЃСѓ РјР°СЃСЃРёРІР°."
-					" РЎРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", realName));
+				this->log(LOG_TYPE::WARNING, std::format("Некорректно заполнен сигнал \"{}\" - некорректное обращение по индексу массива."
+					" Сигнал не будет добавлен.", realName));
 				return false;
 			}
 			SignalData::element_count_type elementCount{ getElementCountFromName(newSignal->name, realName) };
@@ -184,13 +184,13 @@ bool SignalTable::addSignalData(store_type newSignal, storage_type& storage, con
 			auto& oldType = dynamic_cast<RawSignalData*>(newSignal.get())->type;
 			if (oldType.find(arrayStart) != std::string::npos)
 			{
-				this->log(LOG_TYPE::ERROR, std::format("Р”РІСѓРјРµСЂРЅС‹Рµ РјР°СЃСЃРёРІС‹ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚СЃСЏ. РЎРёРіРЅР°Р» \"{}\". РџСЂРёРІРµРґРµРЅРёРµ Рє РїСЂРѕСЃС‚РѕРјСѓ РјР°СЃСЃРёРІСѓ.", realName));
+				this->log(LOG_TYPE::ERROR, std::format("Двумерные массивы не поддерживаются. Сигнал \"{}\". Приведение к простому массиву.", realName));
 				oldType = removePtrFromType(oldType);
 			}
 			if (emplace.second)
 				ptr->type = oldType;
 			else
-				//РќРµРѕР±С…РѕРґРёРјР° РїСЂРѕРІРµСЂРєР°, С‚.Рє. РїСЂРѕРёСЃС…РѕРґРёС‚ РјРѕРґРёС„РёРєР°С†РёСЏ СѓР¶Рµ РґРѕР±Р°РІР»РµРЅРЅРѕРіРѕ СЃРёРіРЅР°Р»Р°, СЃРѕСЃС‚Р°РІР»СЏСЋС‰РµРіРѕ РјР°СЃСЃРёРІ. РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ С‚РёРї СЃРёРіРЅР°Р»Р° РґРѕР»Р¶РµРЅ СЃРѕРІРїР°РґР°С‚СЊ
+				//Необходима проверка, т.к. происходит модификация уже добавленного сигнала, составляющего массив. Следовательно тип сигнала должен совпадать
 				emplace.second = checkExistSignal(dynamic_cast<RawSignalData*>(newSignal.get()), ptr, elementCount);
 			emplaceResult = emplace.second;
 		}
@@ -200,7 +200,7 @@ bool SignalTable::addSignalData(store_type newSignal, storage_type& storage, con
 		}
 	}
 	if (emplaceResult == false)
-		this->log(LOG_TYPE::WARNING, std::format("Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРіРЅР°Р»Р° \"{}\". Р”СѓР±Р»РёСЂСѓРµРјС‹Р№ СЃРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", realName));
+		this->log(LOG_TYPE::WARNING, std::format("Дублирование сигнала \"{}\". Дублируемый сигнал не будет добавлен.", realName));
 	return emplaceResult;
 }
 
@@ -247,13 +247,13 @@ bool SignalTable::addSignal(store_type newSignal)
 	default:
 		newSignal->signalType = RAW_SIGNAL_TYPE::UNKMOWN;
 	case RAW_SIGNAL_TYPE::UNKMOWN:
-		this->log(LOG_TYPE::WARNING, std::format("РџРѕРїС‹С‚РєР° РґРѕР±Р°РІР»РµРЅРёСЏ РЅРµРёР·РІРµСЃС‚РЅРѕРіРѕ СЃРёРіРЅР°Р»Р° \"{}\". Р”СѓР±Р»РёСЂСѓРµРјС‹Р№ СЃРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", newSignal->name));
+		this->log(LOG_TYPE::WARNING, std::format("Попытка добавления неизвестного сигнала \"{}\". Дублируемый сигнал не будет добавлен.", newSignal->name));
 		storage = &unknownSignals;
 		break;
 	}
 	auto addResult = storage->emplace(newSignal->name, newSignal);
 	if (addResult.second == false)
-		this->log(LOG_TYPE::WARNING, std::format("Р”СѓР±Р»РёСЂРѕРІР°РЅРёРµ СЃРёРіРЅР°Р»Р° \"{}\". Р”СѓР±Р»РёСЂСѓРµРјС‹Р№ СЃРёРіРЅР°Р» РЅРµ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ.", newSignal->name));
+		this->log(LOG_TYPE::WARNING, std::format("Дублирование сигнала \"{}\". Дублируемый сигнал не будет добавлен.", newSignal->name));
 	return addResult.second;
 }
 

@@ -19,7 +19,7 @@ void SignalReader::copyPrefixData(const prefix_type& other)
 {
 	prefixData = other;
 	/* 
-	РЎРѕСЂС‚РёСЂРѕРІРєР° РіР°СЂР°РЅС‚РёСЂСѓРµС‚, С‡С‚Рѕ РёР·РЅР°С‡Р°Р»СЊРЅРѕ Р±СѓРґСѓС‚ РїСЂРѕРІРµСЂРµРЅС‹ Р±РѕР»РµРµ РґР»РёРЅРЅС‹Рµ С‚РёРїС‹
+	Сортировка гарантирует, что изначально будут проверены более длинные типы
 	*/
 	std::ranges::sort(prefixData.innerSignalPrefix, sortNames);
 	std::ranges::sort(prefixData.outputSignalPrefix, sortNames);
@@ -33,11 +33,11 @@ std::string SignalReader::defineInitError() const
 {
 	std::string error;
 	if (nameIndex == -1)
-		error = "РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РєРѕР»РѕРЅРєР° СЃ РЅР°Р·РІР°РЅРёРµРј РїРµСЂРµРјРµРЅРЅС‹С….";
+		error = "Отсутствует колонка с названием переменных.";
 	if (valueIndex == -1)
-		error += "РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РєРѕР»РѕРЅРєР° СЃРѕ Р·РЅР°С‡РµРЅРёСЏРјРё РґР»СЏ РєРѕРЅСЃС‚Р°РЅС‚.";
+		error += "Отсутствует колонка со значениями для констант.";
 	if (typeIndex == -1)
-		error += "РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РєРѕР»РѕРЅРєР° СЃ С‚РёРїР°РјРё РґР°РЅРЅС‹С….";
+		error += "Отсутствует колонка с типами данных.";
 	return error;
 }
 
@@ -59,7 +59,7 @@ std::int32_t SignalReader::defineData(const SignalReadProperty::col_variant_type
 RAW_SIGNAL_TYPE SignalReader::defineSignalType(const std::string& plantumlType) const
 {
 	/*
-	Р РµР°Р»РёР·Р°С†РёСЏ РЅРµ РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚, С‡С‚Рѕ СЂР°Р·Р»РёС‡РЅС‹Рµ С‚РёРїС‹ СЃРёРіРЅР°Р»С‹ РёРјРµСЋС‚ РѕРґРёРЅР°РєРѕРІС‹Рµ/РїСЂРµС„РёРєСЃС‹, РІС…РѕРґСЏС‰РёРµ РІ СЃРѕСЃС‚Р°РІ РїСЂРµС„РёРєСЃР° РґСЂСѓРіРёС… С‚РёРїРѕРІ
+	Реализация не подразумевает, что различные типы сигналы имеют одинаковые/префиксы, входящие в состав префикса других типов
 	*/
 	if (checkPrefix(plantumlType, prefixData.inputSignalPrefix))
 		return RAW_SIGNAL_TYPE::INPUT_SIGNAL;
@@ -104,7 +104,7 @@ bool SignalReader::open(const std::string& path)
 	stream.reset(new std::ifstream{ currentPath });
 	bool isOpen{ stream->is_open() };
 	if (isOpen == false)
-		this->log(LOG_TYPE::WARNING, std::format("РќРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» \"{}\"", currentPath));
+		this->log(LOG_TYPE::WARNING, std::format("Невозможно открыть файл \"{}\"", currentPath));
 	return isOpen;
 }
 
@@ -128,15 +128,15 @@ bool SignalReader::initCSVHeader(const SignalReadProperty& property)
 		valueIndex = defineData(property.variablesColValueVariant, splittedHeader);
 
 		if (titleIndex == -1)
-			this->log(LOG_TYPE::WARNING, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ С„Р°Р№Р»Р° \"{}\". РћС‚СЃСѓС‚СЃС‚РІСѓСЋС‚ РґР°РЅРЅС‹Рµ Рѕ РЅР°Р·РІР°РЅРёРё СЃРёРіРЅР°Р»РѕРІ.", currentPath));
+			this->log(LOG_TYPE::WARNING, std::format("Некорректное заполнение файла \"{}\". Отсутствуют данные о названии сигналов.", currentPath));
 
 		auto isCorrectInit = ((nameIndex != -1) && ((valueIndex != -1) || (typeIndex != -1)));
 		if (isCorrectInit == false)
-			this->log(LOG_TYPE::ERROR, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ С„Р°Р№Р»Р° \"{}\". РќРµРІРѕР·РјРѕР¶РЅРѕ СЃС‡РёС‚Р°С‚СЊ СЃРёРіРЅР°Р»С‹. {}", currentPath, defineInitError()));
+			this->log(LOG_TYPE::ERROR, std::format("Некорректное заполнение файла \"{}\". Невозможно считать сигналы. {}", currentPath, defineInitError()));
 		return isCorrectInit;
 	}
 	else
-		this->log(LOG_TYPE::WARNING, std::format("РџРѕРІС‚РѕСЂРЅР°СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„Р°Р№Р»Р° \"{}\"", currentPath));
+		this->log(LOG_TYPE::WARNING, std::format("Повторная инициализация файла \"{}\"", currentPath));
 	return false;
 }
 
@@ -163,7 +163,7 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		switch (currentType)
 		{
 		case RAW_SIGNAL_TYPE::UNKMOWN:
-			this->log(LOG_TYPE::ERROR, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ С„Р°Р№Р»Р° \"{}\". РќРµРІРѕР·РјРѕР¶РЅРѕ РѕРїСЂРµРґРµР»РёС‚СЊ С‚РёРї СЃРёРіРЅР°Р»Р° {}", currentPath, splittedLineCSV.at(nameIndex)));
+			this->log(LOG_TYPE::ERROR, std::format("Некорректное заполнение файла \"{}\". Невозможно определить тип сигнала {}", currentPath, splittedLineCSV.at(nameIndex)));
 			return signalInfo;
 		case RAW_SIGNAL_TYPE::INPUT_SIGNAL:
 		case RAW_SIGNAL_TYPE::OUTPUT_SIGNAL:
@@ -171,7 +171,7 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		case RAW_SIGNAL_TYPE::STRUCT:
 			signalInfo.reset(new RawSignalData);
 			if (typeIndex == -1)
-				this->log(LOG_TYPE::ERROR, std::format("Р¤Р°Р№Р» \"{}\" РЅРµ СЃРѕРґРµСЂР¶РёС‚ РґР°РЅРЅС‹Рµ Рѕ С‚РёРїРµ СЃРёРіРЅР°Р»Р° {}.", currentPath, signalName));
+				this->log(LOG_TYPE::ERROR, std::format("Файл \"{}\" не содержит данные о типе сигнала {}.", currentPath, signalName));
 			else
 				dynamic_cast<RawSignalData*>(signalInfo.get())->type = splittedLineCSV.at(typeIndex);
 			break;
@@ -181,7 +181,7 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		case RAW_SIGNAL_TYPE::CONST:
 			signalInfo.reset(new RawConstData);
 			if (valueIndex == -1)
-				this->log(LOG_TYPE::ERROR, std::format("Р¤Р°Р№Р» \"{}\" РЅРµ СЃРѕРґРµСЂР¶РёС‚ РґР°РЅРЅС‹Рµ Рѕ Р·РЅР°С‡РµРЅРёРё РєРѕРЅСЃС‚Р°РЅС‚С‹ {}.", currentPath, signalName));
+				this->log(LOG_TYPE::ERROR, std::format("Файл \"{}\" не содержит данные о значении константы {}.", currentPath, signalName));
 			else
 				dynamic_cast<RawConstData*>(signalInfo.get())->value = splittedLineCSV.at(typeIndex);
 			break;
@@ -189,12 +189,12 @@ std::shared_ptr<RawReadData> SignalReader::getNextSignal()
 		signalInfo->signalType = currentType;
 		signalInfo->name = signalName;
 		if (titleIndex == -1)
-			this->log(LOG_TYPE::WARNING, std::format("Р¤Р°Р№Р» \"{}\" РЅРµ СЃРѕРґРµСЂР¶РёС‚ РґР°РЅРЅС‹Рµ Рѕ РЅР°Р·РІР°РЅРёРё СЃРёРіРЅР°Р»Р° {}.", currentPath, signalInfo->name));
+			this->log(LOG_TYPE::WARNING, std::format("Файл \"{}\" не содержит данные о названии сигнала {}.", currentPath, signalInfo->name));
 		else
 			signalInfo->title = splittedLineCSV.at(titleIndex);
 		return signalInfo;
 	}
 	else
-		this->log(LOG_TYPE::ERROR, std::format("РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ С„Р°Р№Р»Р° \"{}\". РќРµРІРѕР·РјРѕР¶РЅРѕ СЃС‡РёС‚Р°С‚СЊ СЃРёРіРЅР°Р». {}", currentPath, defineInitError()));
+		this->log(LOG_TYPE::ERROR, std::format("Некорректное заполнение файла \"{}\". Невозможно считать сигнал. {}", currentPath, defineInitError()));
 	return signalInfo;
 }

@@ -2,18 +2,18 @@
 #include "../../../Signals/Base/RawSignalData.hpp"
 #include <unordered_map>
 /*
-///\brief - РўРёРї, С…СЂР°РЅСЏС‰РёР№ СЃС‡РёС‚Р°РЅРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРёРіРЅР°Р»Рµ
+///\brief - Тип, хранящий считанную информацию о сигнале
 */
 struct SignalData : RawSignalData
 {
 	using element_count_type = std::uint32_t;
-	bool isPtr;						///< - РЇРІР»СЏРµС‚СЃСЏ Р»Рё СЃРёРіРЅР°Р» СѓРєР°Р·Р°С‚РµР»РµРј
-	element_count_type elementCount;		///< - РљРѕР»-РІРѕ РµР»РµРјРµРЅС‚РѕРІ
+	bool isPtr;						///< - Является ли сигнал указателем
+	element_count_type elementCount;		///< - Кол-во елементов
 };
 /*
-///\brief - РўРёРї, С…СЂР°РЅСЏС‰РёР№ СЃС‡РёС‚Р°РЅРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃС‚СЂСѓРєС‚СѓСЂР°С…
+///\brief - Тип, хранящий считанную информацию о структурах
 */
 struct StructData : RawSignalData
 {
-	std::unordered_map<std::string, std::shared_ptr<SignalData>> fields;	///< - Р”Р°РЅРЅС‹Рµ Рѕ РїРѕР»СЏС… СЃС‚СЂСѓРєС‚СѓСЂС‹
+	std::unordered_map<std::string, std::shared_ptr<SignalData>> fields;	///< - Данные о полях структуры
 };
