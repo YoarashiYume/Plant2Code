@@ -4,14 +4,14 @@
 #include <vector>
 #include <sstream>
 
-/// \brief Обертка над std::ifstream.
+/// \brief РћР±РµСЂС‚РєР° РЅР°Рґ std::ifstream.
 using unique_ifstream_type = std::unique_ptr<std::ifstream, void(*)(std::ifstream* ptr)>;
-/// \brief Обертка над std::ifstream.
+/// \brief РћР±РµСЂС‚РєР° РЅР°Рґ std::ifstream.
 using unique_ofstream_type = std::unique_ptr<std::ofstream, void(*)(std::ofstream* ptr)>;
 
 /*
-///\brief - Deleter для ifstream
-///\param[in, out] ptr - Указатель на ifstream
+///\brief - Deleter РґР»СЏ ifstream
+///\param[in, out] ptr - РЈРєР°Р·Р°С‚РµР»СЊ РЅР° ifstream
 */
 inline void closeFunction(std::ifstream* ptr)
 {
@@ -23,8 +23,8 @@ inline void closeFunction(std::ifstream* ptr)
 }
 
 /*
-///\brief - Deleter для ofstream
-///\param[in, out] ptr - Указатель на ofstream
+///\brief - Deleter РґР»СЏ ofstream
+///\param[in, out] ptr - РЈРєР°Р·Р°С‚РµР»СЊ РЅР° ofstream
 */
 inline void closeFunction(std::ofstream* ptr)
 {
@@ -35,11 +35,11 @@ inline void closeFunction(std::ofstream* ptr)
 	}
 }
 /**
-\brief Функиця преобразующая строку CSV-файла в массив данных
-\param text исходная строка
-\param splitter разделитель, используемый в CSV
-\param saveEmpty флаг необходимости сохранения пустых полей
-\return список полей
+\brief Р¤СѓРЅРєРёС†СЏ РїСЂРµРѕР±СЂР°Р·СѓСЋС‰Р°СЏ СЃС‚СЂРѕРєСѓ CSV-С„Р°Р№Р»Р° РІ РјР°СЃСЃРёРІ РґР°РЅРЅС‹С…
+\param text РёСЃС…РѕРґРЅР°СЏ СЃС‚СЂРѕРєР°
+\param splitter СЂР°Р·РґРµР»РёС‚РµР»СЊ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РІ CSV
+\param saveEmpty С„Р»Р°Рі РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё СЃРѕС…СЂР°РЅРµРЅРёСЏ РїСѓСЃС‚С‹С… РїРѕР»РµР№
+\return СЃРїРёСЃРѕРє РїРѕР»РµР№
 */
 inline std::vector<std::string> splitToVector(const std::string& text, const char splitter, bool saveEmpty = false)
 {

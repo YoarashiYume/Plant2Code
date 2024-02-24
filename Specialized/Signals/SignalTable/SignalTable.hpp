@@ -4,7 +4,7 @@
 #include "SignalData.hpp"
 #include "../../../Common/Log/Logable.hpp"
 /**
-///\brief Класс для хранения таблицы сигналов
+///\brief РљР»Р°СЃСЃ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ СЃРёРіРЅР°Р»РѕРІ
 */
 class SignalTable : public Logable
 {
@@ -13,90 +13,90 @@ public:
 	using store_type = std::shared_ptr<RawReadData>;
 	using storage_type = std::unordered_map<key_type, store_type>;
 
-	const char structSeparator = '.';	///< - Символ разделения структуры
-	const char arrayStart = '[';		///< - Символ начала массива
-	const char arrayEnd = ']';			///< - Символ конеца массива
-	const std::string arraySize = "..";	///< - Символ размера массива в названии переменнной
+	const char structSeparator = '.';	///< - РЎРёРјРІРѕР» СЂР°Р·РґРµР»РµРЅРёСЏ СЃС‚СЂСѓРєС‚СѓСЂС‹
+	const char arrayStart = '[';		///< - РЎРёРјРІРѕР» РЅР°С‡Р°Р»Р° РјР°СЃСЃРёРІР°
+	const char arrayEnd = ']';			///< - РЎРёРјРІРѕР» РєРѕРЅРµС†Р° РјР°СЃСЃРёРІР°
+	const std::string arraySize = "..";	///< - РЎРёРјРІРѕР» СЂР°Р·РјРµСЂР° РјР°СЃСЃРёРІР° РІ РЅР°Р·РІР°РЅРёРё РїРµСЂРµРјРµРЅРЅРЅРѕР№
 
 protected:
-	storage_type inputSignals;			///< - Данные о входных сигналах
-	storage_type outputSignals;			///< - Данные о выходных сигналах
-	storage_type innerValues;			///< - Данные о внутренних сигналах
-	storage_type constValues;			///< - Данные о константах
-	storage_type timers;				///< - Данные о таймерах
-	storage_type structData;			///< - Данные о структурах
-	storage_type unknownSignals;		///< - Данные о неизвестных сигналах
+	storage_type inputSignals;			///< - Р”Р°РЅРЅС‹Рµ Рѕ РІС…РѕРґРЅС‹С… СЃРёРіРЅР°Р»Р°С…
+	storage_type outputSignals;			///< - Р”Р°РЅРЅС‹Рµ Рѕ РІС‹С…РѕРґРЅС‹С… СЃРёРіРЅР°Р»Р°С…
+	storage_type innerValues;			///< - Р”Р°РЅРЅС‹Рµ Рѕ РІРЅСѓС‚СЂРµРЅРЅРёС… СЃРёРіРЅР°Р»Р°С…
+	storage_type constValues;			///< - Р”Р°РЅРЅС‹Рµ Рѕ РєРѕРЅСЃС‚Р°РЅС‚Р°С…
+	storage_type timers;				///< - Р”Р°РЅРЅС‹Рµ Рѕ С‚Р°Р№РјРµСЂР°С…
+	storage_type structData;			///< - Р”Р°РЅРЅС‹Рµ Рѕ СЃС‚СЂСѓРєС‚СѓСЂР°С…
+	storage_type unknownSignals;		///< - Р”Р°РЅРЅС‹Рµ Рѕ РЅРµРёР·РІРµСЃС‚РЅС‹С… СЃРёРіРЅР°Р»Р°С…
 
 	
 	
 	/**
-	///\brief Добавить данные о структуре
-	///\param[in, out] newSignal Добавляемый сигнал
-	///\return true если добавление успешно, иначе false
+	///\brief Р”РѕР±Р°РІРёС‚СЊ РґР°РЅРЅС‹Рµ Рѕ СЃС‚СЂСѓРєС‚СѓСЂРµ
+	///\param[in, out] newSignal Р”РѕР±Р°РІР»СЏРµРјС‹Р№ СЃРёРіРЅР°Р»
+	///\return true РµСЃР»Рё РґРѕР±Р°РІР»РµРЅРёРµ СѓСЃРїРµС€РЅРѕ, РёРЅР°С‡Рµ false
 	*/
 	bool addStructData(store_type newSignal);
 	/**
-	///\brief Добавить данные о сигнале
-	///\param[in, out] newSignal Добавляемый сигнал
-	///\param[in, out] storage Хранилище данных
-	///\param[in] realName Реальное имя добавляемого сигнала
-	///\return true если добавление успешно, иначе false
+	///\brief Р”РѕР±Р°РІРёС‚СЊ РґР°РЅРЅС‹Рµ Рѕ СЃРёРіРЅР°Р»Рµ
+	///\param[in, out] newSignal Р”РѕР±Р°РІР»СЏРµРјС‹Р№ СЃРёРіРЅР°Р»
+	///\param[in, out] storage РҐСЂР°РЅРёР»РёС‰Рµ РґР°РЅРЅС‹С…
+	///\param[in] realName Р РµР°Р»СЊРЅРѕРµ РёРјСЏ РґРѕР±Р°РІР»СЏРµРјРѕРіРѕ СЃРёРіРЅР°Р»Р°
+	///\return true РµСЃР»Рё РґРѕР±Р°РІР»РµРЅРёРµ СѓСЃРїРµС€РЅРѕ, РёРЅР°С‡Рµ false
 	*/
 	bool addSignalData(store_type newSignal, storage_type& storage, const std::string realName);
 	/**
-	///\brief Конструирование нового сигнала
-	///\param[in, out] rawSignal Исходный сигнал
-	///\param[in] isPtr Является ли сигнал указателем
-	///\param[in] elementCount Кол-во элементов в массиве
-	///\return Добавляемый сигнал
+	///\brief РљРѕРЅСЃС‚СЂСѓРёСЂРѕРІР°РЅРёРµ РЅРѕРІРѕРіРѕ СЃРёРіРЅР°Р»Р°
+	///\param[in, out] rawSignal РСЃС…РѕРґРЅС‹Р№ СЃРёРіРЅР°Р»
+	///\param[in] isPtr РЇРІР»СЏРµС‚СЃСЏ Р»Рё СЃРёРіРЅР°Р» СѓРєР°Р·Р°С‚РµР»РµРј
+	///\param[in] elementCount РљРѕР»-РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ
+	///\return Р”РѕР±Р°РІР»СЏРµРјС‹Р№ СЃРёРіРЅР°Р»
 	*/
 	store_type createFullSignal(const store_type& rawSignal, bool isPtr = false, SignalData::element_count_type elementCount = 1) const;
 	/**
-	///\brief Удалить указатель из типа
-	///\param[in] oldType Старый тип
-	///\return std::string Тип без указателя
+	///\brief РЈРґР°Р»РёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РёР· С‚РёРїР°
+	///\param[in] oldType РЎС‚Р°СЂС‹Р№ С‚РёРї
+	///\return std::string РўРёРї Р±РµР· СѓРєР°Р·Р°С‚РµР»СЏ
 	*/
 	std::string removePtrFromType(const std::string oldType);
 	/**
-	///\brief Получить количество элементов по имени
-	///\param[in, out] name Имя сигнала
-	///\param[in] realName Реальное имя сигнала
-	///\return Количество элементов в имени сигнала
+	///\brief РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РїРѕ РёРјРµРЅРё
+	///\param[in, out] name РРјСЏ СЃРёРіРЅР°Р»Р°
+	///\param[in] realName Р РµР°Р»СЊРЅРѕРµ РёРјСЏ СЃРёРіРЅР°Р»Р°
+	///\return РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РёРјРµРЅРё СЃРёРіРЅР°Р»Р°
 	*/
 	SignalData::element_count_type getElementCountFromName(std::string& name, const std::string realName);
 	/**
-	///\brief Получить количество элементов по типу
-	///\param[in, out] type Тип сигнала
-	///\param[in] realName Реальное имя сигнала
-	///\return Количество элементов в типе сигнала
+	///\brief РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РїРѕ С‚РёРїСѓ
+	///\param[in, out] type РўРёРї СЃРёРіРЅР°Р»Р°
+	///\param[in] realName Р РµР°Р»СЊРЅРѕРµ РёРјСЏ СЃРёРіРЅР°Р»Р°
+	///\return РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ С‚РёРїРµ СЃРёРіРЅР°Р»Р°
 	*/
 	SignalData::element_count_type getElementCount(std::string& type, const std::string name);
 	/**
-	///\brief Получить количество элементов из сигнала, объявленного одной строкой
-	///\param[in, out] name Данные сигнала
-	///\param[in] realName Реальное имя сигнала
-	///\return Количество элементов в типе сигнала
+	///\brief РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РёР· СЃРёРіРЅР°Р»Р°, РѕР±СЉСЏРІР»РµРЅРЅРѕРіРѕ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРѕР№
+	///\param[in, out] name Р”Р°РЅРЅС‹Рµ СЃРёРіРЅР°Р»Р°
+	///\param[in] realName Р РµР°Р»СЊРЅРѕРµ РёРјСЏ СЃРёРіРЅР°Р»Р°
+	///\return РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ С‚РёРїРµ СЃРёРіРЅР°Р»Р°
 	*/
 	SignalData::element_count_type getElementCountFromOneLinesSignal(std::string& name, const std::string realName);
 	/**
-	///\brief Проверка и изменение существующего сигнала, при совпадении параметров
-	///\param[in, out] newSignal Новый сигнал
-	///\param[in, out]] oldSignal Существующий сигнал
-	///\param[in] newElementCount Новое кол-во элементов
-	///\return Количество элементов в типе сигнала
+	///\brief РџСЂРѕРІРµСЂРєР° Рё РёР·РјРµРЅРµРЅРёРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ СЃРёРіРЅР°Р»Р°, РїСЂРё СЃРѕРІРїР°РґРµРЅРёРё РїР°СЂР°РјРµС‚СЂРѕРІ
+	///\param[in, out] newSignal РќРѕРІС‹Р№ СЃРёРіРЅР°Р»
+	///\param[in, out]] oldSignal РЎСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЃРёРіРЅР°Р»
+	///\param[in] newElementCount РќРѕРІРѕРµ РєРѕР»-РІРѕ СЌР»РµРјРµРЅС‚РѕРІ
+	///\return РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ С‚РёРїРµ СЃРёРіРЅР°Р»Р°
 	*/
 	bool checkExistSignal(RawSignalData* newSignal, SignalData* oldSignal, SignalData::element_count_type newElementCount);
 public:
 	/**
-	///\brief Добавить новый сигнал
-	///\param newSignal Новый сигнал
-	///\return true если добавление успешно, иначе false
+	///\brief Р”РѕР±Р°РІРёС‚СЊ РЅРѕРІС‹Р№ СЃРёРіРЅР°Р»
+	///\param newSignal РќРѕРІС‹Р№ СЃРёРіРЅР°Р»
+	///\return true РµСЃР»Рё РґРѕР±Р°РІР»РµРЅРёРµ СѓСЃРїРµС€РЅРѕ, РёРЅР°С‡Рµ false
 	*/
 	bool addSignal(store_type newSignal);
 	/**
-	///\brief Получить сигнал по ключу
-	///\param key Ключ сигнала
-	///\return Сигнал по ключу
+	///\brief РџРѕР»СѓС‡РёС‚СЊ СЃРёРіРЅР°Р» РїРѕ РєР»СЋС‡Сѓ
+	///\param key РљР»СЋС‡ СЃРёРіРЅР°Р»Р°
+	///\return РЎРёРіРЅР°Р» РїРѕ РєР»СЋС‡Сѓ
 	*/
 	store_type getSignal(const key_type& key);
 };

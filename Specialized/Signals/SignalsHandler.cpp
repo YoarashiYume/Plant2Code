@@ -4,11 +4,11 @@ SignalsHandler::SignalsHandler()
 {
     table.reset(new SignalTable);
 	readProperty.separatorCSV = ';';
-	readProperty.variablesColNameVariant = { "Îáîçíà÷åíèå", "Îáîçíà÷åíèå ñîñòîÿíèÿ", "Îáîçíà÷åíèå ñèãíàëà" };
-	readProperty.variablesColTitleVariant = { "Íàèìåíîâàíèå", "Íàçâàíèå ñèãíàëà", "Íàçâàíèå ñîñòîÿíèÿ" };
-	readProperty.variablesColTypeVariant = { "Òèï äàííûõ", "\"Òèï äàííûõ\"" };
-	readProperty.variablesColValueVariant = { "Çíà÷åíèå" };
-	readProperty.prefixes.ignoreVariant = { "Ðåçåðâ" };
+	readProperty.variablesColNameVariant = { "ÐžÐ±Ð¾Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ", "ÐžÐ±Ð¾Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ñ", "ÐžÐ±Ð¾Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÑÐ¸Ð³Ð½Ð°Ð»Ð°" };
+	readProperty.variablesColTitleVariant = { "ÐÐ°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ðµ", "ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ ÑÐ¸Ð³Ð½Ð°Ð»Ð°", "ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ñ" };
+	readProperty.variablesColTypeVariant = { "Ð¢Ð¸Ð¿ Ð´Ð°Ð½Ð½Ñ‹Ñ…", "\"Ð¢Ð¸Ð¿ Ð´Ð°Ð½Ð½Ñ‹Ñ…\"" };
+	readProperty.variablesColValueVariant = { "Ð—Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ" };
+	readProperty.prefixes.ignoreVariant = { "Ð ÐµÐ·ÐµÑ€Ð²" };
 	readProperty.prefixes.innerSignalPrefix = { "Z" };
 	readProperty.prefixes.outputSignalPrefix = { "Y" };
 	readProperty.prefixes.inputSignalPrefix = { "X" };
@@ -20,20 +20,17 @@ SignalsHandler::SignalsHandler()
 bool SignalsHandler::readSignals(const std::string& path)
 {
 	SignalReader reader;
-	if (reader.open(path) == false)
-	{
-		return false;
-	}
-	if (reader.initCSVHeader(readProperty))
-	{
-		return false;
-	}
-	bool isOkRead{ true };
-	while (!reader.isEOF())
-	{
-		isOkRead &= table->addSignal(reader.getNextSignal());
-	}
-    return isOkRead;
+	if (reader.open(path))
+		if (reader.initCSVHeader(readProperty))
+		{
+			bool isOkRead{ true };
+			while (!reader.isEOF())
+			{
+				isOkRead &= table->addSignal(reader.getNextSignal());
+			}
+			return isOkRead;
+		}
+		return false;	
 }
 
 bool SignalsHandler::readSignals(const std::vector<std::string>& paths)

@@ -133,8 +133,15 @@
   <ItemGroup>
     <ClInclude Include="Common\File.hpp" />
     <ClInclude Include="Common\Log\Base\ILogable.hpp" />
-    <ClInclude Include="FileWorkers\Reader\PumlReader.hpp" />
     <ClInclude Include="Common\Log\Logable.hpp" />
+    <ClInclude Include="Common\StringFunction.hpp" />
+    <ClInclude Include="Specialized\Plantuml\Base\PlantumlBlock.hpp" />
+    <ClInclude Include="Specialized\Plantuml\InitalHandler.hpp" />
+    <ClInclude Include="Plantuml\PumlReader.hpp" />
+    <ClInclude Include="Specialized\Plantuml\Base\IInitalHandler.hpp" />
+    <ClInclude Include="Specialized\Plantuml\Base\InitialHandlerProperty.hpp" />
+    <ClInclude Include="Specialized\Plantuml\Base\PlantumlBlockType.hpp" />
+    <ClInclude Include="Specialized\Plantuml\InitialHandlerData.hpp" />
     <ClInclude Include="Specialized\Signals\SignalTable\SignalData.hpp" />
     <ClInclude Include="Specialized\Signals\SignalTable\SignalTable.hpp" />
     <ClInclude Include="Specialized\Signals\SignalsHandler.hpp" />
@@ -147,12 +154,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\Log\Base\ILogable.cpp" />
-    <ClCompile Include="FileWorkers\Reader\PumlReader.cpp" />
     <ClCompile Include="Common\Log\Logable.cpp" />
+    <ClCompile Include="Specialized\Plantuml\InitalHandler.cpp" />
+    <ClCompile Include="Plantuml\PumlReader.cpp" />
+    <ClCompile Include="Source1.cpp" />
     <ClCompile Include="Specialized\Signals\SignalTable\SignalTable.cpp" />
     <ClCompile Include="Specialized\Signals\SignalsHandler.cpp" />
     <ClCompile Include="Signals\SignalReader.cpp" />
-    <ClCompile Include="Source.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Plantuml\Base\IPumlReader.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

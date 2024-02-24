@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FileWorkers\Reader\PumlReader.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Log\Base\ILogable.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -54,14 +51,32 @@
     <ClInclude Include="Specialized\Signals\SignalTable\SignalData.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Plantuml\PumlReader.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\StringFunction.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Specialized\Plantuml\Base\IInitalHandler.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Specialized\Plantuml\Base\InitialHandlerProperty.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Specialized\Plantuml\InitalHandler.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Specialized\Plantuml\Base\PlantumlBlockType.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Specialized\Plantuml\Base\PlantumlBlock.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Specialized\Plantuml\InitialHandlerData.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FileWorkers\Reader\PumlReader.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Common\Log\Base\ILogable.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -77,5 +92,17 @@
     <ClCompile Include="Specialized\Signals\SignalTable\SignalTable.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Source1.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Plantuml\PumlReader.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Specialized\Plantuml\InitalHandler.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Plantuml\Base\IPumlReader.hpp" />
   </ItemGroup>
 </Project>

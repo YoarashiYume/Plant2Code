@@ -6,29 +6,29 @@ struct PrefixData
 {
 	using prefix_variant_type = std::vector<std::string>;
 	using ignore_variant_type = std::vector<std::string>;
-	prefix_variant_type inputSignalPrefix;		///< - Ïðåôèêñû âõîäíûõ ñèãíàëîâ
-	prefix_variant_type outputSignalPrefix;		///< - Ïðåôèêñû âûõîäíûõ ñèãíàëîâ
-	prefix_variant_type innerSignalPrefix;		///< - Ïðåôèêñû âíóòðåííèõ ñèãíàëîâ
-	prefix_variant_type constPrefix;			///< - Ïðåôèêñû êîíñòàíò
-	prefix_variant_type timerSignalPrefix;		///< - Ïðåôèêñû òàéìåðîâ
-	prefix_variant_type structSignalPrefix;		///< - Ïðåôèêñû ñòðóêòóð
-	ignore_variant_type ignoreVariant;			///< - Íàçâàíèå ñ êîòîðûìè ñèãíàëû èãíîðèðóþòñÿ
+	prefix_variant_type inputSignalPrefix;		///< - ÐŸÑ€ÐµÑ„Ð¸ÐºÑÑ‹ Ð²Ñ…Ð¾Ð´Ð½Ñ‹Ñ… ÑÐ¸Ð³Ð½Ð°Ð»Ð¾Ð²
+	prefix_variant_type outputSignalPrefix;		///< - ÐŸÑ€ÐµÑ„Ð¸ÐºÑÑ‹ Ð²Ñ‹Ñ…Ð¾Ð´Ð½Ñ‹Ñ… ÑÐ¸Ð³Ð½Ð°Ð»Ð¾Ð²
+	prefix_variant_type innerSignalPrefix;		///< - ÐŸÑ€ÐµÑ„Ð¸ÐºÑÑ‹ Ð²Ð½ÑƒÑ‚Ñ€ÐµÐ½Ð½Ð¸Ñ… ÑÐ¸Ð³Ð½Ð°Ð»Ð¾Ð²
+	prefix_variant_type constPrefix;			///< - ÐŸÑ€ÐµÑ„Ð¸ÐºÑÑ‹ ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚
+	prefix_variant_type timerSignalPrefix;		///< - ÐŸÑ€ÐµÑ„Ð¸ÐºÑÑ‹ Ñ‚Ð°Ð¹Ð¼ÐµÑ€Ð¾Ð²
+	prefix_variant_type structSignalPrefix;		///< - ÐŸÑ€ÐµÑ„Ð¸ÐºÑÑ‹ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€
+	ignore_variant_type ignoreVariant;			///< - ÐÐ°Ð·Ð²Ð°Ð½Ð¸Ðµ Ñ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¼Ð¸ ÑÐ¸Ð³Ð½Ð°Ð»Ñ‹ Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€ÑƒÑŽÑ‚ÑÑ
 };
 
 /*
-///\brief - Ñòðóêòóðà, çàäàþùàÿ ñâîéñòâà äëÿ ÷òåíèÿ ñèãíàëà.
+///\brief - Ð¡Ñ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð°, Ð·Ð°Ð´Ð°ÑŽÑ‰Ð°Ñ ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð° Ð´Ð»Ñ Ñ‡Ñ‚ÐµÐ½Ð¸Ñ ÑÐ¸Ð³Ð½Ð°Ð»Ð°.
 */
 struct SignalReadProperty
 {
 	using col_variant_type = std::vector<std::string>;
 	using prefix_type = PrefixData;
 
-	char separatorCSV;							///< - Ñèìâîë ðàçäåëåíèÿ äëÿ ñòîëáöîâ CSV-òàáëèöû
-	col_variant_type variablesColNameVariant;	///< - Âàðèàíòû çàãîëîâêîâ êîëîíîê äëÿ íàçâàíèÿ ïåðåìåííûõ
-	col_variant_type variablesColTitleVariant;	///< - Âàðèàíòû çàãîëîâêîâ êîëîíîê äëÿ íàçâàíèÿ ñèãíàëà
-	col_variant_type variablesColTypeVariant;	///< - Âàðèàíòû çàãîëîâêîâ êîëîíîê äëÿ òèïà ïåðåìåííûõ
-	col_variant_type variablesColValueVariant;	///< - Âàðèàíòû çàãîëîâêîâ êîëîíîê äëÿ çíà÷åíèÿ ïåðåìåííûõ
+	char separatorCSV;							///< - Ð¡Ð¸Ð¼Ð²Ð¾Ð» Ñ€Ð°Ð·Ð´ÐµÐ»ÐµÐ½Ð¸Ñ Ð´Ð»Ñ ÑÑ‚Ð¾Ð»Ð±Ñ†Ð¾Ð² CSV-Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
+	col_variant_type variablesColNameVariant;	///< - Ð’Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ñ‹ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐ¾Ð² ÐºÐ¾Ð»Ð¾Ð½Ð¾Ðº Ð´Ð»Ñ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ…
+	col_variant_type variablesColTitleVariant;	///< - Ð’Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ñ‹ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐ¾Ð² ÐºÐ¾Ð»Ð¾Ð½Ð¾Ðº Ð´Ð»Ñ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ñ ÑÐ¸Ð³Ð½Ð°Ð»Ð°
+	col_variant_type variablesColTypeVariant;	///< - Ð’Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ñ‹ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐ¾Ð² ÐºÐ¾Ð»Ð¾Ð½Ð¾Ðº Ð´Ð»Ñ Ñ‚Ð¸Ð¿Ð° Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ…
+	col_variant_type variablesColValueVariant;	///< - Ð’Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ñ‹ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐ¾Ð² ÐºÐ¾Ð»Ð¾Ð½Ð¾Ðº Ð´Ð»Ñ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ñ…
 	
 
-	prefix_type prefixes;						///< - Ïðåôèêñû ñèãíàëîâ
+	prefix_type prefixes;						///< - ÐŸÑ€ÐµÑ„Ð¸ÐºÑÑ‹ ÑÐ¸Ð³Ð½Ð°Ð»Ð¾Ð²
 };
