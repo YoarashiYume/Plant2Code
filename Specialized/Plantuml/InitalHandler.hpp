@@ -57,7 +57,7 @@ protected:
    */
 	PLANTUML_BLOCK_TYPE isBlockEnd(const std::string& line) const;
 	/**
-	сbrief Проверка, является ли строка корректным блоком вычислением (+ считывание)
+	///\brief Проверка, является ли строка корректным блоком вычислением (+ считывание)
 	///\param[in, out] line Строка для проверки
 	///\return true, если строка является корректным блоком, false в противном случае
 	*/
@@ -97,9 +97,25 @@ protected:
 	/**
 	///\brief Раскрытие вычислений, происходящее в массиве
 	///\param line Строка с массивом для раскрытия
-	///\return аскрытые вычисления, возвращает пустой массив, в случае неудачи
+	///\return Раскрытые вычисления, возвращает пустой массив, в случае неудачи
 	*/
 	std::vector<std::string> expandArray(std::string& line);
+	/**
+	///\brief Проверка, является ли строка корректным блоком функции (+ считывание)
+	///\param[in, out] line Строка для проверки
+	///\return true, если строка является корректным блоком, false в противном случае
+	*/
+	bool isFunction(std::string& line);
+	/**
+	///\brief Проверка, является ли строка корректным блоком функции (+ считывание)
+	///\param[in] line Проверяемая строка
+	///\param[in] functionData Проверяемая функция
+	///\param[out] signature Сигнатура функции
+	///\param[out] inputArgs Входные аргументы функции
+	///\param[out] outputArgs Выходные аргументы функции
+	///\return true, если строка корректна и удалось разбить функцию на составные части, false в противном случае
+	*/
+	bool splitFunctionData(const std::string& line, const std::string& functionData, std::string& signature, std::string& inputArgs, std::string& outputArgs);
 
 public:
 	// Унаследовано через IInitalHandler

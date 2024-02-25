@@ -17,7 +17,7 @@ struct PlantumlBlock
 };
 
 /**
-///\brief Структура, представляющая raw блока
+///\brief Структура, представляющая raw-блок
 */
 struct PlantumlRawBlock : PlantumlBlock
 {
@@ -26,6 +26,25 @@ struct PlantumlRawBlock : PlantumlBlock
 
 	PlantumlRawBlock(const PLANTUML_BLOCK_TYPE& type, const std::string& text)
 		: text(text), PlantumlBlock(type)
+	{
+	}
+};
+/**
+///\brief Структура, представляющая raw-блок функции
+*/
+struct PlantumlRawFunctionBlock : PlantumlRawBlock
+{
+	std::string inArgs,								///< Входные аргументы ф-ии
+		outArgs;									///< Выходные аргументы функции
+	virtual ~PlantumlRawFunctionBlock() = default;
+
+	PlantumlRawFunctionBlock(const PLANTUML_BLOCK_TYPE& type, const std::string& text)
+		: PlantumlRawBlock(type, text)
+	{
+	}
+
+	PlantumlRawFunctionBlock(const PLANTUML_BLOCK_TYPE& type, const std::string& text, const std::string& inArgs, const std::string& outArgs)
+		: outArgs(outArgs), inArgs(inArgs), PlantumlRawBlock(type, text)
 	{
 	}
 };

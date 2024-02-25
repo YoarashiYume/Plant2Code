@@ -136,3 +136,60 @@ inline std::string join(const std::vector<std::string>& src, const char separato
 		appendString(el, result, separator);
 	return result;
 }
+/*
+///\brief - Функция заменяющая последовательность
+///\param[in, out] str - Преобразуемая строка
+///\param[in] escape - Удаляемая последовательность
+///\param[in] escape - Новая последовательность
+*/
+inline void removeSequence(std::string& str, const std::string& escape, const std::string& replacement = " ")
+{
+	auto pos = str.find(escape);
+	while (pos != std::string::npos) {
+		str.replace(pos, escape.length(), replacement);
+		pos = str.find(escape, pos + replacement.size());
+	}
+}
+/*
+///\brief - Функция заменяющая последовательность
+///\param[in] str - Преобразуемая строка
+///\param[in] escape - Удаляемая последовательность
+///\param[in] escape - Новая последовательность
+///\return - Результат функции преобразования
+*/
+inline std::string removeSequence(const std::string& str, const std::string& escape, const std::string& replacement = " ")
+{
+	auto copy = str;
+	removeSequence(copy, escape, replacement);
+	return copy;
+}
+/*
+///\brief - Функция проверяющая баланс символов startSymbol и endSymbol
+///\param[in] line - Проверяемая строка
+///\param[in] startSymbol - Начинающий символ
+///\param[in] endSymbol - Оканчивающий символ
+///\param[in,out] firstZeroPos - Позиция окончания первого блока
+///\return - Возвращает 0, если соблюден баланс. -1, если символов, в любом месте строки, endSymbol больше. >0, если больше символов startSymbol
+*/
+inline std::int32_t checkStringBalance(const std::string& line, const char startSymbol, const char endSymbol, std::string::size_type* firstZeroPos = nullptr)
+{
+	if (firstZeroPos)
+		*firstZeroPos = std::string::npos;
+	std::int32_t nonCloseBlockCount{};
+	for (std::string::size_type i = 0; i < line.size(); ++i)
+	{
+		auto& ch = line.at(i);
+		if (ch == startSymbol)
+			++nonCloseBlockCount;
+		else if (ch == endSymbol)
+		{
+			if (--nonCloseBlockCount < 0)
+				break;
+			if (firstZeroPos)
+				if (nonCloseBlockCount == 0 && *firstZeroPos == std::string::npos)
+					*firstZeroPos = i;
+
+		}
+	}
+	return nonCloseBlockCount;
+}

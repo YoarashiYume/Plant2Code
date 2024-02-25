@@ -4,6 +4,8 @@
 
 bool InitalHandler::read(PumlReader& stream, std::string& line)
 {
+    if (line.empty())
+        line = stream.getLine();
     bool isRead{ false};
     if (isIgnoredLine(line) || isCommentLine(stream, line))
     {
@@ -81,7 +83,7 @@ bool InitalHandler::isBlock(PumlReader& stream, std::string& line)
     case PLANTUML_BLOCK_TYPE::CALCULATION:
         return isCalculation(line);
     case PLANTUML_BLOCK_TYPE::FUNCTION:
-        break;
+        return isFunction(line);
     case PLANTUML_BLOCK_TYPE::REFERENCE:
         break;
     default:
@@ -192,7 +194,7 @@ bool InitalHandler::expandCalculation(std::vector<std::string>& lines)
                 return false;
             std::vector<std::string> data{ lines.begin(), std::next(lines.begin(), index -1)};
             data.insert(data.end(), std::make_move_iterator(expanded.begin()), std::make_move_iterator(expanded.end()));
-            data.insert(data.end(), std::next(lines.begin(), index + 1), lines.end());
+            data.insert(data.end(), std::next(lines.begin(), index + 2), lines.end());
             std::swap(lines, data);
         }
         else
@@ -220,6 +222,7 @@ std::vector<std::string> InitalHandler::expandArray(std::string& line)
         log(LOG_TYPE::ERROR, std::format("Раскрытие массива-строки \"{}\" в файле \"{}\" невозможно. Отсутствует корректное обращение в массиве.", line, storage.back()->path));
         return{};
     }
+    //+ отлавливает случайное попадание некорректных записей
     if (lArray > expandSymbol || rArray < expandSymbol)
     {
         log(LOG_TYPE::ERROR, std::format("Раскрытие массива-строки \"{}\" в файле \"{}\" невозможно. Раскрытие происходит вне массива.", line, storage.back()->path));
@@ -227,7 +230,7 @@ std::vector<std::string> InitalHandler::expandArray(std::string& line)
     }
     auto left = line.substr(lArray+1, expandSymbol - lArray -1);
     auto right = line.substr(expandSymbol + property.plantumlExpandSymbol.size(),
-        rArray - (expandSymbol + property.plantumlExpandSymbol.size()) -1);
+        rArray - (expandSymbol + property.plantumlExpandSymbol.size()));
     std::int32_t lIndex, rIndex;
     try
     {
@@ -255,6 +258,83 @@ std::vector<std::string> InitalHandler::expandArray(std::string& line)
     }
     
     return result;
+}
+bool InitalHandler::isFunction(std::string& line)
+{
+    removeSequence(line, "\\n", " ");
+    removeSequence(line, "\n", " ");
+    removeSequence(line, property.plantumlInlineCommentMarker, " ");
+    removeExtraSpacesFromText(line);
+    if (std::count(line.begin(), line.end(), property.plantumlFunctionCallSymbol) % 2 != 0)
+    {
+        log(LOG_TYPE::ERROR, std::format("Блок вызова функции \"{}\" содержит нечетное кол-во символов вызова функции. Файл \"{}\"", line, storage.back()->path));
+        return false;
+    }
+    auto splittedData{ splitToVector(line.substr(1, line.size() -2), {property.plantumlFunctionCallSymbol})};
+    bool isAllFunctionOk{ true };
+    for (decltype(splittedData)::size_type i = 0; i < splittedData.size(); ++i)
+    {
+        if (i % 2 == 0)
+        {
+            removeExtraSpacesFromText(splittedData.at(i));
+            //Не сохраняем пустые комментарии.
+            if (splittedData.at(i).size())
+                storage.back()->instruction.emplace_back(new PlantumlRawBlock{ PLANTUML_BLOCK_TYPE::COMMENT, splittedData.at(i) });
+            continue;
+        }
+        auto& function = splittedData.at(i);
+        bool shouldBeArgs = function.find(property.plantumlFunctionArgSeparator) != std::string::npos;
+        bool isArgs = function.find(property.plantumlFunctionArgsEnd) != std::string::npos ||
+            function.find(property.plantumlFunctionArgsStart) != std::string::npos;
+        if (isArgs != shouldBeArgs)
+        {
+            if (shouldBeArgs == false)
+                log(LOG_TYPE::ERROR, std::format("Блок вызова функции \"{}\" содержит содержит аргументы в \"{}\" без разделителя аргументов. Файл \"{}\"", line, function, storage.back()->path));
+            else
+                log(LOG_TYPE::ERROR, std::format("Блок вызова функции \"{}\" содержит не содержит аргументы в \"{}\", но присутствует разделитель аргументов. Файл \"{}\"", line, function, storage.back()->path));
+            isAllFunctionOk = false;
+            continue;
+        }
+        std::string inArgs, outArgs, signature{ function };
+        if (isArgs)
+        {
+            if (splitFunctionData(line, function, signature, inArgs, outArgs) == false)
+            {
+                isAllFunctionOk = false;
+                continue;
+            }
+        }
+        storage.back()->instruction.emplace_back(new PlantumlRawFunctionBlock{ PLANTUML_BLOCK_TYPE::FUNCTION, signature, inArgs, outArgs });
+    }
+    return isAllFunctionOk;
+}
+bool InitalHandler::splitFunctionData(const std::string& line, const std::string& functionData, std::string& signature, std::string& inputArgs, std::string& outputArgs)
+{
+    if (checkStringBalance(functionData, property.plantumlFunctionArgsStart, property.plantumlFunctionArgsEnd) != 0)
+    {
+        log(LOG_TYPE::ERROR, std::format("Блок вызова функции \"{}\" в \"{}\" отсутствует баланс скобок в сигнатуре. Файл \"{}\"", line, functionData, storage.back()->path));
+        return false;
+    }
+    if (std::count(functionData.begin(), functionData.end(), property.plantumlFunctionArgsStart) != 2)
+    {
+        log(LOG_TYPE::ERROR, std::format("Блок вызова функции \"{}\" в \"{}\" некорректное кол-во выделений аргументов. Файл \"{}\"", line, functionData, storage.back()->path));
+        return false;
+    }
+    std::string args{ functionData.substr(functionData.find(property.plantumlFunctionArgsStart)) };
+    signature = removeExtraSpacesFromText(functionData.substr(0, functionData.find(property.plantumlFunctionArgsStart)));
+    bool isNotCorrectSignature = signature.find(property.plantumlFunctionArgSeparator) != std::string::npos ||
+        signature.find(property.plantumlFunctionArgsEnd) != std::string::npos ||
+        signature.find(property.plantumlFunctionArgsStart) != std::string::npos;
+    if (isNotCorrectSignature)
+    {
+        log(LOG_TYPE::ERROR, std::format("Блок вызова функции \"{}\" в \"{}\" содержит некорректную сигнатуру \"{}\". Файл \"{}\"", line, functionData, signature, storage.back()->path));
+        return false;
+    }
+    inputArgs = removeExtraSpacesFromText(args.substr(0, args.find(property.plantumlFunctionArgSeparator)));
+    outputArgs = removeExtraSpacesFromText((args.substr(args.find(property.plantumlFunctionArgSeparator) + property.plantumlFunctionArgSeparator.size())));
+    inputArgs = inputArgs.substr(1, inputArgs.size() - 2);
+    outputArgs = outputArgs.substr(1, outputArgs.size() - 2);
+    return true;
 }
 std::pair<std::string, std::string> InitalHandler::splitByAssign(const std::string& line, std::string& assignReturn) const
 {

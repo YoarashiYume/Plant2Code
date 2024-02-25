@@ -42,4 +42,9 @@ struct InitialHandlerProperty
 
 	multi_variant_setting plantumlAssignVariant{ "+=", "-=", "*=", "/=", "%=", "=" };		 ///< Символы присваивания
 	one_variant_setting plantumlExpandSymbol{ "..." };										 ///< Символ развертывания PlantUML
+
+	char plantumlFunctionCallSymbol{ '\"' };												///< Символы вызова функции
+	one_variant_setting plantumlFunctionArgSeparator{ "->" };								///< Символ разделения аргументов функции
+	char plantumlFunctionArgsEnd{ ')' };															///< Окончание массива
+	char plantumlFunctionArgsStart{ '(' };															///< Начало массива 
 };
