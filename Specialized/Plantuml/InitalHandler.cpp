@@ -592,15 +592,15 @@ bool InitalHandler::isServiceBlock(PumlReader& stream, std::string& line, PLANTU
     std::string variant;
     if (tryToFindReference(line, property.plantumlIf, variant))
         blockType = PLANTUML_BLOCK_TYPE::IF_START;
-    else if (tryToFindReference(line, property.plantumlElse, variant))
-        blockType = PLANTUML_BLOCK_TYPE::ELSE_START;
     else if (tryToFindReference(line, property.plantumlElseIf, variant))
         blockType = PLANTUML_BLOCK_TYPE::IF_ELSE_START;
+    else if (tryToFindReference(line, property.plantumlElse, variant))
+        blockType = PLANTUML_BLOCK_TYPE::ELSE_START;
     else if (tryToFindReference(line, property.plantumlEndIf))
         blockType = PLANTUML_BLOCK_TYPE::IF_END;
-    else if (tryToFindReference(line, property.plantumlSwitch))
+    else if (tryToFindReference(line, property.plantumlSwitch, variant))
         blockType = PLANTUML_BLOCK_TYPE::SWITCH_START;
-    else if (tryToFindReference(line, property.plantumlCase))
+    else if (tryToFindReference(line, property.plantumlCase, variant))
         blockType = PLANTUML_BLOCK_TYPE::CASE_START;
     else if (tryToFindReference(line, property.plantumlEndSwitch))
         blockType = PLANTUML_BLOCK_TYPE::SWITCH_END;
@@ -624,7 +624,7 @@ bool InitalHandler::isServiceBlock(PumlReader& stream, std::string& line, PLANTU
         variant = property.plantumlIfPostfix;
         while (!isPostfix(line, variant) && !stream.isEOF())
         {
-            line += " " + stream.getLine();       //используется "\\n" для соответствию тексту и более простому парсингу
+            line += " " + stream.getLine();
         }
         break;
     case PLANTUML_BLOCK_TYPE::ELSE_START:
@@ -640,11 +640,29 @@ bool InitalHandler::isServiceBlock(PumlReader& stream, std::string& line, PLANTU
             line += " " + tempNewLine;
         }        
         break;
-    case PLANTUML_BLOCK_TYPE::SWITCH_START:
-        //TODO
-        break;
     case PLANTUML_BLOCK_TYPE::CASE_START:
-        //TODO
+    case PLANTUML_BLOCK_TYPE::SWITCH_START:
+        while (!stream.isEOF())
+        {
+            auto count = checkStringBalance(line, property.plantumlConditionStart, property.plantumlConditionEnd);
+            if (count == 0 && line.back() == property.plantumlConditionEnd)
+                break;
+            if (count < 0)
+            {
+                if (blockType == PLANTUML_BLOCK_TYPE::SWITCH_START)
+                    log(LOG_TYPE::WARNING, std::format("Некорректное кол-во скобок в строке switch \"{}\" в файле \"{}\". Дальнейшая работа может быть некорректна",
+                    line, storage.back()->path));
+                else
+                {
+                    blockType = PLANTUML_BLOCK_TYPE::UNKNOWN;
+                    log(LOG_TYPE::WARNING, std::format("Некорректное кол-во скобок в строке case \"{}\" в файле \"{}\"",
+                        line, storage.back()->path));
+                    return false;
+                }
+
+            }
+            line += " " + stream.getLine();
+        }
         break;
     case PLANTUML_BLOCK_TYPE::WHILE_START:
         variant = property.plantumWhilePostfix;
@@ -678,10 +696,12 @@ bool InitalHandler::isServiceBlock(PumlReader& stream, std::string& line, PLANTU
     {
         line = removeExtraSpacesFromText( line.substr(0, line.size() - variant.size()));
     }
-    if (line.size() > 2 && line.front() == property.plantumlConditionStart && line.back() == property.plantumlConditionEnd)
+    if (line.size() >= 2 && line.front() == property.plantumlConditionStart && line.back() == property.plantumlConditionEnd)
     {
-        line = line.substr(1, line.size() - 2);
+        line = removeExtraSpacesFromText(line.substr(1, line.size() - 2));
     }
+    removeSequence(line, "\\n");
+    removeExtraSpacesFromText(line);
     return blockType != PLANTUML_BLOCK_TYPE::UNKNOWN && !stream.isEOF();
 }
 
@@ -696,14 +716,22 @@ bool InitalHandler::proceedServiceBlock(std::string& line, PLANTUML_BLOCK_TYPE b
     case PLANTUML_BLOCK_TYPE::IF_START:
         if (blockType != PLANTUML_BLOCK_TYPE::ELSE_START)
             return proceedServiceCommentSeparator(line, blockType);
-    case PLANTUML_BLOCK_TYPE::WHILE_END:
+        return true;
     case PLANTUML_BLOCK_TYPE::SWITCH_END:
+        storage.back()->instruction.emplace_back(new PlantumlBlock{ PLANTUML_BLOCK_TYPE::CASE_END });
+    case PLANTUML_BLOCK_TYPE::WHILE_END:    
     case PLANTUML_BLOCK_TYPE::IF_END:
         storage.back()->instruction.emplace_back(new PlantumlBlock{ blockType });
         return true;
     case PLANTUML_BLOCK_TYPE::SWITCH_START:
+        storage.back()->instruction.emplace_back(new PlantumlRawBlock{ PLANTUML_BLOCK_TYPE::COMMENT, line });
+        storage.back()->instruction.emplace_back(new PlantumlBlock{ blockType });
+        return true;
     case PLANTUML_BLOCK_TYPE::CASE_START:
-        //TODO
+        if (storage.back()->instruction.back()->type != PLANTUML_BLOCK_TYPE::SWITCH_START)
+            storage.back()->instruction.emplace_back(new PlantumlBlock{ PLANTUML_BLOCK_TYPE::CASE_END });
+        storage.back()->instruction.emplace_back(new PlantumlRawBlock{ blockType, line });
+        return true;
     case PLANTUML_BLOCK_TYPE::WHILE_START:
         return proceedServiceCommentSeparator(line, blockType);
     default:
@@ -723,7 +751,7 @@ bool InitalHandler::proceedServiceCommentSeparator(std::string& line, PLANTUML_B
     }
     storage.back()->instruction.emplace_back(new PlantumlRawBlock{ PLANTUML_BLOCK_TYPE::COMMENT, line.substr(0, separatorIndex+1) });
     storage.back()->instruction.emplace_back(new PlantumlRawBlock{ blockType,
-        removeExtraSpacesFromText(removeSequence(line.substr(separatorIndex + 1), "\\n")) });
+        removeExtraSpacesFromText(line.substr(separatorIndex + 1)) });
     return true;
 }
 

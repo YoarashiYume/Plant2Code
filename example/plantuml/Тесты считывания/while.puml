@@ -1,0 +1,26 @@
+@startuml
+
+!function $comment()
+!return ""
+!endfunction
+:Вход;
+note right
+Тестовый вариан цикла
+Локальные переменные:
+L0: UInt32 - Вход 1
+end note
+
+while (Условие?\nL0 < 5) is (да)
+	'Действие
+endwhile (нет)
+
+while (Условие?L0 < 5) is (да)
+	'Действие
+endwhile (нет)
+
+while (Условие\nвыполнения?L0 <\n5) is (да)
+	'Действие
+endwhile (нет)
+
+:Выход;
+@enduml

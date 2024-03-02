@@ -1,0 +1,35 @@
+@startuml
+
+!function $comment()
+!return ""
+!endfunction
+:Вход;
+note right
+Тестовый вариан switch
+Локальные переменные:
+L0: UInt32 - Вход 1
+end note
+
+switch (Условие)
+case (L0 == 1)
+    'Действие 1
+case ()
+    'defult действие
+endswitch
+
+switch (Условие?)
+case (L0 == 1)
+    'Действие 1
+case (L0 == 2) 
+    'Действие 2
+case (L0 == 3)
+    'Действие 3
+case (L0 == 4)
+    'Действие 4
+case ()
+    'defult действие
+endswitch
+
+
+:Выход;
+@enduml
