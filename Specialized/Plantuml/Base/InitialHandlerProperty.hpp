@@ -33,7 +33,6 @@ struct InitialHandlerProperty
 
 	multi_variant_setting plantumlSwitch{ {"switch"} };										///< Конструкция switch PlantUML
 	multi_variant_setting plantumlCase{ {"case"} };											///< Конструкция case PlantUML
-	multi_variant_setting plantumlEndCase{ };												///< Окончание конструкции case PlantUML
 	multi_variant_setting plantumlEndSwitch{ {"endswitch"} };								///< Окончание конструкции switch PlantUML
 
 	multi_variant_setting plantumlWhile{ {"while"} };										///< Конструкция while PlantUML
@@ -45,6 +44,9 @@ struct InitialHandlerProperty
 
 	char plantumlFunctionCallSymbol{ '\"' };												///< Символы вызова функции
 	one_variant_setting plantumlFunctionArgSeparator{ "->" };								///< Символ разделения аргументов функции
-	char plantumlFunctionArgsEnd{ ')' };															///< Окончание массива
-	char plantumlFunctionArgsStart{ '(' };															///< Начало массива 
+	char plantumlFunctionArgsEnd{ ')' };													///< Окончание массива
+	char plantumlFunctionArgsStart{ '(' };													///< Начало массива 
+
+	multi_variant_setting plantumlReferenceStart{"Вход"};									///< Начало ссылки 
+	multi_variant_setting plantumlReferenceEnd{"Выход"};									///< Конец ссылки
 };

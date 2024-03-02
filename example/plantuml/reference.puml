@@ -1,0 +1,36 @@
+@startuml
+
+
+:Вход;
+note right
+Тестовый вариан ссылок
+end note
+
+:A;
+:B;
+
+:Выход;
+@enduml
+
+@startuml
+
+:Вход A;
+
+:C;
+
+:Выход A;
+@enduml
+
+@startuml
+
+:Вход B;
+
+:Выход B;
+@enduml
+
+@startuml
+
+:Вход C;
+
+:Выход C;
+@enduml

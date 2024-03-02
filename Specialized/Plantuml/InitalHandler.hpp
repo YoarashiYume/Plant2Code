@@ -8,9 +8,11 @@
 */
 class InitalHandler : public IInitalHandler<Logable>
 {
+private:
+	using storage_type = std::vector<std::shared_ptr<InitialHandlerData>>;
 protected:
 	InitialHandlerProperty property;							///< Свойства обработчика
-	std::vector<std::shared_ptr<InitialHandlerData>> storage;	///< Хранилище данные
+	storage_type storage;	///< Хранилище данные
 
 	/**
 	///\brief Чтение из файла PlantUML
@@ -116,6 +118,35 @@ protected:
 	///\return true, если строка корректна и удалось разбить функцию на составные части, false в противном случае
 	*/
 	bool splitFunctionData(const std::string& line, const std::string& functionData, std::string& signature, std::string& inputArgs, std::string& outputArgs);
+	/**
+	///\brief Проверка, является ли строка корректным блоком ссылки (+ считывание)
+	///\param[in, out] line Строка для проверки
+	///\return true, если строка является корректным блоком, false в противном случае
+	*/
+	bool isReference(std::string& line);
+	/**
+	///\brief Проверка, является ли корректным объявление начала ссылки
+	///\param[in] refName Название ссылки
+	///\return true, если является корректным блоком, false в противном случае
+	*/
+	bool isOkStart(const std::string& refName);
+	/**
+	///\brief Проверка, является ли корректным объявление окончания ссылки
+	///\param[in] refName Название ссылки
+	///\return true, если является корректным блоком, false в противном случае
+	*/
+	bool isOkEnd(const std::string& refName);
+	/**
+	///\brief Поиск последних данных об объявлении начала/конца ссылки
+	///\return Итератор на инструкцию алгоритма, если объявление было найдено, иначе .end()
+	*/
+	decltype(InitialHandlerData::instruction)::const_iterator getFirstReferenceIter() const;
+	/**
+	///\brief Проверка на дублирование названия ссылки
+	///\param[in] refName Название ссылки
+	///\return true, если ссылка уже объявлена, false в противном случае
+	*/
+	bool isStartReferenceDuplication(const std::string& refName);
 
 public:
 	// Унаследовано через IInitalHandler

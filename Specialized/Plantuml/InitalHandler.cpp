@@ -85,7 +85,7 @@ bool InitalHandler::isBlock(PumlReader& stream, std::string& line)
     case PLANTUML_BLOCK_TYPE::FUNCTION:
         return isFunction(line);
     case PLANTUML_BLOCK_TYPE::REFERENCE:
-        break;
+        return isReference(line);
     default:
         return false;
     }
@@ -451,6 +451,119 @@ bool InitalHandler::isCalculation(std::string& line)
     for (auto& calculation : splitted)
         storage.back()->instruction.emplace_back(new PlantumlRawBlock{ PLANTUML_BLOCK_TYPE::CALCULATION, calculation });
     return true;
+}
+
+static bool tryToFindReference(const std::string& src, const InitialHandlerProperty::multi_variant_setting& variants, std::string& refName)
+{
+    for (auto& variant : variants)
+        if (src.find(variant) != std::string::npos)
+        {
+            refName = variant;
+            return true;
+        }
+    return false;
+}
+
+bool InitalHandler::isReference(std::string& line)
+{
+    std::string ref;
+    PLANTUML_BLOCK_TYPE referenceType{ PLANTUML_BLOCK_TYPE::REFERENCE };
+    bool (InitalHandler:: *checkFunction)(const std::string&) = nullptr;
+    if (tryToFindReference(line, property.plantumlReferenceStart, ref))
+    {
+        checkFunction = &InitalHandler::isOkStart;
+        referenceType = PLANTUML_BLOCK_TYPE::START_REFERENCE;
+    }
+    else if (tryToFindReference(line, property.plantumlReferenceEnd, ref))
+    {
+        referenceType = PLANTUML_BLOCK_TYPE::END_REFERENCE;
+        checkFunction = &InitalHandler::isOkEnd;
+    }
+    if (checkFunction != nullptr)
+    {
+        
+        const std::uint32_t offset = 1 + static_cast<std::uint32_t>(ref.size());
+        line = removeExtraSpacesFromText(line.substr(offset, line.size() - offset - 1));
+        if ((this->*checkFunction)(line) == false)
+            return false;
+    }
+    else
+        line = removeExtraSpacesFromText(line.substr(1, line.size() - 2));
+    this->storage.back()->instruction.emplace_back(new PlantumlRawBlock{ referenceType, line });
+    return true;
+}
+
+bool InitalHandler::isOkStart(const std::string& refName)
+{
+    auto lastReferenceData = getFirstReferenceIter();
+    if (lastReferenceData == storage.back()->instruction.end())
+    {
+        if (refName.empty())
+            return !isStartReferenceDuplication(refName);
+        log(LOG_TYPE::ERROR, std::format("Алгоритм должен начинаться с ссылки без имени. Файл \"{}\"", storage.back()->path));
+    }
+    else
+    {
+        if (lastReferenceData->get()->type != PLANTUML_BLOCK_TYPE::START_REFERENCE)
+            return !isStartReferenceDuplication(refName);
+        log(LOG_TYPE::ERROR, std::format("Алгоритм \"{}\" имеет незакрытую ссылку \"{}\" => Объявление ссылки \"{}\" невозможно. Файл \"{}\"",
+            storage.back()->algorithmName, dynamic_cast<PlantumlRawBlock*>(lastReferenceData->get())->text, refName, storage.back()->path));
+    }
+    return false;
+}
+
+bool InitalHandler::isOkEnd(const std::string& refName)
+{
+    auto lastReferenceData = getFirstReferenceIter();
+    if (lastReferenceData == storage.back()->instruction.end())
+    {
+        log(LOG_TYPE::ERROR, std::format("Алгоритм \"{}\" не имеет начальной ссылки => Закрыть ссылку невозможно. Файл \"{}\"",
+            storage.back()->algorithmName, storage.back()->path));
+    }
+    else
+    {
+        if (lastReferenceData->get()->type != PLANTUML_BLOCK_TYPE::START_REFERENCE)
+        {
+            log(LOG_TYPE::ERROR, std::format("Алгоритм \"{}\" имеет незакрытую ссылку \"{}\" => Объявление закрытия ссылки \"{}\" невозможно. Файл \"{}\"",
+                storage.back()->algorithmName, dynamic_cast<PlantumlRawBlock*>(lastReferenceData->get())->text, refName, storage.back()->path));
+        }
+        else
+        {
+            if (dynamic_cast<PlantumlRawBlock*>(lastReferenceData->get())->text == refName)
+                return true;
+            log(LOG_TYPE::ERROR, std::format("Алгоритм \"{}\". Невозможно закрыть ссылку \"{}\" ссылкой \"{}\" => Пропущено окончание ссылки \"{}\". Файл \"{}\"",
+                storage.back()->algorithmName, dynamic_cast<PlantumlRawBlock*>(lastReferenceData->get())->text, refName, 
+                storage.back()->algorithmName, dynamic_cast<PlantumlRawBlock*>(lastReferenceData->get())->text, storage.back()->path));
+        }
+    }
+    return false;
+}
+
+decltype(InitialHandlerData::instruction)::const_iterator InitalHandler::getFirstReferenceIter() const
+{
+    if (storage.back()->instruction.empty())
+        return storage.back()->instruction.end();
+    decltype(InitialHandlerData::instruction)::const_reverse_iterator iter;
+    for (iter = storage.back()->instruction.rbegin(); iter != storage.back()->instruction.rend(); ++iter)
+        if (iter->get()->type == PLANTUML_BLOCK_TYPE::END_REFERENCE ||
+            iter->get()->type == PLANTUML_BLOCK_TYPE::START_REFERENCE)
+            break;
+    return --(iter.base());;
+}
+
+bool InitalHandler::isStartReferenceDuplication(const std::string& refName)
+{
+    for (auto& instruction : storage.back()->instruction)
+    {
+        if (instruction->type == PLANTUML_BLOCK_TYPE::START_REFERENCE &&
+            dynamic_cast<PlantumlRawBlock*>(instruction.get())->text == refName)
+        {
+            log(LOG_TYPE::ERROR, std::format("Алгоритм \"{}\" имеет многократное объявление ссылки \"{}\". Файл \"{}\"",
+                storage.back()->algorithmName, refName, storage.back()->path));
+            return true;
+        }
+    }
+    return false;
 }
 
 void InitalHandler::init(const InitialHandlerProperty& newProperty)
