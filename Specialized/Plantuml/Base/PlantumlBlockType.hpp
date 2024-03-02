@@ -14,9 +14,8 @@ enum class PLANTUML_BLOCK_TYPE : std::uint8_t
 	END_REFERENCE,				///< Конец алгоритма
 	IF_START,					///< Начало условного оператора if
 	IF_ELSE_START,				///< Начало ветви if-else
-	IF_END,						///< Конец условного оператора if
+	IF_END,						///< Конец условного оператора if/is-else/else
 	ELSE_START,					///< Начало ветви else
-	ELSE_END,					///< Конец ветви else
 	WHILE_START,				///< Начало цикла while
 	WHILE_END,					///< Конец цикла while
 	SWITCH_START,				///< Начало оператора switch

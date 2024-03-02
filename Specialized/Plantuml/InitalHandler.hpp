@@ -147,7 +147,28 @@ protected:
 	///\return true, если ссылка уже объявлена, false в противном случае
 	*/
 	bool isStartReferenceDuplication(const std::string& refName);
-
+	/**
+	///\brief Проверка является ли блок служебным
+	///\param[in] stream Поток для чтения файла
+	///\param[in] line Строка для проверки
+	///\param[out] blockType Тип считанного блока
+	///\return true, если блок является служебным, false в противном случае
+	*/
+	bool isServiceBlock(PumlReader& stream, std::string& line, PLANTUML_BLOCK_TYPE& blockType);
+	/**
+	///\brief Обработка и сохранение служебного блока
+	///\param[in] line Строка со считанным блоком
+	///\param[out] blockType Тип считанного блока
+	///\return true, если обработка успешна, false в противном случае
+	*/
+	bool proceedServiceBlock(std::string& line, PLANTUML_BLOCK_TYPE blockType);
+	/**
+	///\brief Метод отделения текстового условия от кода
+	///\param[in] line Строка со считанным блоком
+	///\param[out] blockType Тип считанного блока
+	///\return true, если отделение было успешным, false в противном случае
+	*/
+	bool proceedServiceCommentSeparator(std::string& line, PLANTUML_BLOCK_TYPE blockType);
 public:
 	// Унаследовано через IInitalHandler
 	void init(const InitialHandlerProperty& newProperty) override;

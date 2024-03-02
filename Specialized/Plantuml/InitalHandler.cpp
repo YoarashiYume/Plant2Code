@@ -17,7 +17,13 @@ bool InitalHandler::read(PumlReader& stream, std::string& line)
         if (line.front() == property.plantumlBlockStart)
             isRead = isBlock(stream, line);
         else
+        {
+            PLANTUML_BLOCK_TYPE blockType;
+            if (isServiceBlock(stream, line, blockType))
+                isRead = proceedServiceBlock(line, blockType);
             isRead = true;
+        }
+            
         line.clear();
     }
     return isRead;
@@ -37,7 +43,10 @@ void InitalHandler::prepareFile(PumlReader& stream) const
 
 bool InitalHandler::isIgnoredLine(std::string& line)
 {
-    return std::find(property.ignoredFirstSymbol.begin(), property.ignoredFirstSymbol.end(), line.front()) != property.ignoredFirstSymbol.end();
+    for (auto& ignored : property.ignoredFirstSymbol)
+        if (line.find(ignored) == 0)
+            return true;
+    return false;
 }
 
 bool InitalHandler::isCommentLine(PumlReader& stream, std::string& line)
@@ -456,7 +465,7 @@ bool InitalHandler::isCalculation(std::string& line)
 static bool tryToFindReference(const std::string& src, const InitialHandlerProperty::multi_variant_setting& variants, std::string& refName)
 {
     for (auto& variant : variants)
-        if (src.find(variant) != std::string::npos)
+        if (src.find(variant) == 0)
         {
             refName = variant;
             return true;
@@ -564,6 +573,158 @@ bool InitalHandler::isStartReferenceDuplication(const std::string& refName)
         }
     }
     return false;
+}
+static bool tryToFindReference(const std::string& src, const InitialHandlerProperty::multi_variant_setting& variants)
+{
+    std::string _;
+    return tryToFindReference(src, variants, _);
+}
+
+static bool isPostfix(const std::string& line, const std::string& postfix)
+{
+    if (line.length() >= postfix.length()) 
+        return (0 == line.compare(line.length() - postfix.length(), postfix.length(), postfix));
+    return false;
+}
+bool InitalHandler::isServiceBlock(PumlReader& stream, std::string& line, PLANTUML_BLOCK_TYPE& blockType)
+{
+    blockType = PLANTUML_BLOCK_TYPE::UNKNOWN;
+    std::string variant;
+    if (tryToFindReference(line, property.plantumlIf, variant))
+        blockType = PLANTUML_BLOCK_TYPE::IF_START;
+    else if (tryToFindReference(line, property.plantumlElse, variant))
+        blockType = PLANTUML_BLOCK_TYPE::ELSE_START;
+    else if (tryToFindReference(line, property.plantumlElseIf, variant))
+        blockType = PLANTUML_BLOCK_TYPE::IF_ELSE_START;
+    else if (tryToFindReference(line, property.plantumlEndIf))
+        blockType = PLANTUML_BLOCK_TYPE::IF_END;
+    else if (tryToFindReference(line, property.plantumlSwitch))
+        blockType = PLANTUML_BLOCK_TYPE::SWITCH_START;
+    else if (tryToFindReference(line, property.plantumlCase))
+        blockType = PLANTUML_BLOCK_TYPE::CASE_START;
+    else if (tryToFindReference(line, property.plantumlEndSwitch))
+        blockType = PLANTUML_BLOCK_TYPE::SWITCH_END;
+    else if (tryToFindReference(line, property.plantumlWhile, variant))
+        blockType = PLANTUML_BLOCK_TYPE::WHILE_START;
+    else if (tryToFindReference(line, property.plantumlEndWhile))
+        blockType = PLANTUML_BLOCK_TYPE::WHILE_END;
+    if (variant.size())
+    {
+        //Удаление префикса, в другом месте будет вызывать дублирование этой функции
+        line = removeExtraSpacesFromText(line.substr(variant.size()));
+        variant.clear();
+    }
+    std::string tempNewLine;
+    std::string oldLine = line;
+
+    switch (blockType)
+    {
+    case PLANTUML_BLOCK_TYPE::IF_START:
+    case PLANTUML_BLOCK_TYPE::IF_ELSE_START:
+        variant = property.plantumlIfPostfix;
+        while (!isPostfix(line, variant) && !stream.isEOF())
+        {
+            line += " " + stream.getLine();       //используется "\\n" для соответствию тексту и более простому парсингу
+        }
+        break;
+    case PLANTUML_BLOCK_TYPE::ELSE_START:
+        variant = property.plantumElsePostfix;
+        while (!isPostfix(line, variant))
+        {
+            tempNewLine = stream.getLine();
+            if (tryToFindReference(tempNewLine, property.plantumlEndWhile))
+            {
+                line += " " + tempNewLine;
+                tempNewLine = stream.getLine();
+            }
+            line += " " + tempNewLine;
+        }        
+        break;
+    case PLANTUML_BLOCK_TYPE::SWITCH_START:
+        //TODO
+        break;
+    case PLANTUML_BLOCK_TYPE::CASE_START:
+        //TODO
+        break;
+    case PLANTUML_BLOCK_TYPE::WHILE_START:
+        variant = property.plantumWhilePostfix;
+        while (!isPostfix(line, variant) && !stream.isEOF())
+        {
+            line += " " + stream.getLine();
+        }
+        break;
+    case PLANTUML_BLOCK_TYPE::WHILE_END:
+        variant = property.plantumEndWhilePostfix;
+        while (!isPostfix(line, variant) && !stream.isEOF())
+        {
+            tempNewLine = stream.getLine();
+            if (tryToFindReference(tempNewLine, property.plantumlElse))
+            {
+                line += " " + tempNewLine;
+                tempNewLine = stream.getLine();
+            }
+            line += " " + tempNewLine;
+        }
+        break;
+    default:
+        break;
+    }
+    if (blockType != PLANTUML_BLOCK_TYPE::UNKNOWN && stream.isEOF())
+    {
+        log(LOG_TYPE::ERROR, std::format("Ошибка в считывании строки \"{}\". Файл \"{}\" не может быть прочитан.",
+            oldLine, storage.back()->path));
+    }
+    else if (!stream.isEOF() && variant.size())
+    {
+        line = removeExtraSpacesFromText( line.substr(0, line.size() - variant.size()));
+    }
+    if (line.size() > 2 && line.front() == property.plantumlConditionStart && line.back() == property.plantumlConditionEnd)
+    {
+        line = line.substr(1, line.size() - 2);
+    }
+    return blockType != PLANTUML_BLOCK_TYPE::UNKNOWN && !stream.isEOF();
+}
+
+bool InitalHandler::proceedServiceBlock(std::string& line, PLANTUML_BLOCK_TYPE blockType)
+{
+    switch (blockType)
+    {      
+    
+    case PLANTUML_BLOCK_TYPE::IF_ELSE_START:
+    case PLANTUML_BLOCK_TYPE::ELSE_START:
+        storage.back()->instruction.emplace_back(new PlantumlBlock{ PLANTUML_BLOCK_TYPE::IF_END });
+    case PLANTUML_BLOCK_TYPE::IF_START:
+        if (blockType != PLANTUML_BLOCK_TYPE::ELSE_START)
+            return proceedServiceCommentSeparator(line, blockType);
+    case PLANTUML_BLOCK_TYPE::WHILE_END:
+    case PLANTUML_BLOCK_TYPE::SWITCH_END:
+    case PLANTUML_BLOCK_TYPE::IF_END:
+        storage.back()->instruction.emplace_back(new PlantumlBlock{ blockType });
+        return true;
+    case PLANTUML_BLOCK_TYPE::SWITCH_START:
+    case PLANTUML_BLOCK_TYPE::CASE_START:
+        //TODO
+    case PLANTUML_BLOCK_TYPE::WHILE_START:
+        return proceedServiceCommentSeparator(line, blockType);
+    default:
+        break;
+    }
+    return false;
+}
+
+bool InitalHandler::proceedServiceCommentSeparator(std::string& line, PLANTUML_BLOCK_TYPE blockType)
+{
+    auto separatorIndex = line.find(property.plantumlServiceCommentSeparator);
+    if (separatorIndex == std::string::npos)
+    {
+        log(LOG_TYPE::ERROR, std::format("Служебный блок \"{}\" не имеет символа отделения \"{}\" условия. Файл \"{}\"",
+            line, property.plantumlServiceCommentSeparator, storage.back()->path));
+        return false;
+    }
+    storage.back()->instruction.emplace_back(new PlantumlRawBlock{ PLANTUML_BLOCK_TYPE::COMMENT, line.substr(0, separatorIndex+1) });
+    storage.back()->instruction.emplace_back(new PlantumlRawBlock{ blockType,
+        removeExtraSpacesFromText(removeSequence(line.substr(separatorIndex + 1), "\\n")) });
+    return true;
 }
 
 void InitalHandler::init(const InitialHandlerProperty& newProperty)
