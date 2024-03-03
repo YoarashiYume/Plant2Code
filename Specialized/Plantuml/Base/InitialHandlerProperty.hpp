@@ -55,9 +55,22 @@ struct InitialHandlerProperty
 	char plantumlFunctionArgsEnd{ ')' };													///< Окончание массива
 	char plantumlFunctionArgsStart{ '(' };													///< Начало массива 
 
-	char plantumlConditionEnd{ ')' };													///< Окончание выделения условия
-	char plantumlConditionStart{ '(' };													///< Начало выделения условия 
+	char plantumlConditionEnd{ ')' };														///< Окончание выделения условия
+	char plantumlConditionStart{ '(' };														///< Начало выделения условия 
 
 	multi_variant_setting plantumlReferenceStart{"Вход"};									///< Начало ссылки 
 	multi_variant_setting plantumlReferenceEnd{"Выход"};									///< Конец ссылки
+
+	multi_variant_setting plantumlFullNote{"note right","note left","note up","note down" };///< Символы начала описания алгоритма
+	one_variant_setting plantumlEndFullNote{ "end note" };									///< Конец описания алгоритма
+	multi_variant_setting plantumlFastNote
+	{ "note right:","note left:","note up:","note down:" };									///< Символы короткого описания алгоритма
+
+	multi_variant_setting plantumlNoteInputSignal{"Параметры:"};							///< Признак начала списка входных переменных алгоритма
+	multi_variant_setting plantumlNoteLocalSignal{"Локальные переменные:"};					///< Признак начала списка локальных переменных алгоритма
+	multi_variant_setting plantumlNoteOutputSignal{"Возвращаемые значения:"};				///< Признак начала списка выходных переменных алгоритма
+	multi_variant_setting plantumlNoteDescription{"Примечание:", "Примечания:"};			///< Признак начала примечаний алгоритма
+	one_variant_setting plantumlNoteSignalTypeSeparator{ ":" };								///< Символ отделения сигнала от типа сигнала
+	one_variant_setting plantumlNoteSignalTitleSeparator{ "-" };							///< Символ отделения типа сигнала от описания
+
 };

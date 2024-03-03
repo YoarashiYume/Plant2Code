@@ -48,7 +48,7 @@
     <ClInclude Include="Specialized\Signals\SignalTable\SignalTable.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Specialized\Signals\SignalTable\SignalData.hpp">
+    <ClInclude Include="Specialized\Signals\Base\SignalData.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Plantuml\PumlReader.hpp">

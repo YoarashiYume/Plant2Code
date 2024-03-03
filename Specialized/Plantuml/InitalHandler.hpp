@@ -169,6 +169,29 @@ protected:
 	///\return true, если отделение было успешным, false в противном случае
 	*/
 	bool proceedServiceCommentSeparator(std::string& line, PLANTUML_BLOCK_TYPE blockType);
+	/**
+	///\brief Проверка на считывание описания алгоритма (+ считывание)
+	///\param[in] stream Поток для чтения файла
+	///\param[in] line Строка для проверки
+	///\return true, если считывается описание, false в противном случае
+	*/
+	bool isNote(PumlReader& stream, std::string& line);
+	/**
+	///\brief Считывание полного описания
+	///\param[in] stream Поток для чтения файла
+	///\param[in] line Строка для считывания
+	///\return true, если считывание успешно, false в противном случае
+	*/
+	bool proceedFullNote(PumlReader& stream, std::string& line);
+	/**
+	///\brief Считывание сигнала из описания
+	///\param[in] line Строка для считывания
+	///\param[in] signalStorage Хранилище сигналов
+	///\param[in] signalType Тип считываемого сигнала
+	///\return true, если считывание успешно, false в противном случае
+	*/
+	bool proceedNoteSignal(std::string& line, InitialHandlerData::signal_storage_type* signalStorage,
+		const RAW_SIGNAL_TYPE signalType);
 public:
 	// Унаследовано через IInitalHandler
 	void init(const InitialHandlerProperty& newProperty) override;

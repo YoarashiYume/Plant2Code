@@ -142,7 +142,7 @@
     <ClInclude Include="Specialized\Plantuml\Base\InitialHandlerProperty.hpp" />
     <ClInclude Include="Specialized\Plantuml\Base\PlantumlBlockType.hpp" />
     <ClInclude Include="Specialized\Plantuml\InitialHandlerData.hpp" />
-    <ClInclude Include="Specialized\Signals\SignalTable\SignalData.hpp" />
+    <ClInclude Include="Specialized\Signals\Base\SignalData.hpp" />
     <ClInclude Include="Specialized\Signals\SignalTable\SignalTable.hpp" />
     <ClInclude Include="Specialized\Signals\SignalsHandler.hpp" />
     <ClInclude Include="Specialized\Signals\Base\ISignalsHandler.hpp" />

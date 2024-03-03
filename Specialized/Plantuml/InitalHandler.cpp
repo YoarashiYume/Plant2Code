@@ -21,7 +21,8 @@ bool InitalHandler::read(PumlReader& stream, std::string& line)
             PLANTUML_BLOCK_TYPE blockType;
             if (isServiceBlock(stream, line, blockType))
                 isRead = proceedServiceBlock(line, blockType);
-            isRead = true;
+            else if (isNote(stream, line))
+                isRead = true;
         }
             
         line.clear();
@@ -752,6 +753,149 @@ bool InitalHandler::proceedServiceCommentSeparator(std::string& line, PLANTUML_B
     storage.back()->instruction.emplace_back(new PlantumlRawBlock{ PLANTUML_BLOCK_TYPE::COMMENT, line.substr(0, separatorIndex+1) });
     storage.back()->instruction.emplace_back(new PlantumlRawBlock{ blockType,
         removeExtraSpacesFromText(line.substr(separatorIndex + 1)) });
+    return true;
+}
+
+bool InitalHandler::isNote(PumlReader& stream, std::string& line)
+{
+    std::string variant;
+    if (tryToFindReference(line, property.plantumlFastNote, variant))
+        if (storage.back()->algorithmName.empty())
+            storage.back()->algorithmName = removeExtraSpacesFromText(line.substr(variant.size()));
+    if (tryToFindReference(line, property.plantumlFullNote))
+        return proceedFullNote(stream, line);
+    return false;
+}
+
+bool InitalHandler::proceedFullNote(PumlReader& stream, std::string& line)
+{
+    bool isDescription{ false };
+    bool isOkRead{ true };
+    RAW_SIGNAL_TYPE signalType{};
+    InitialHandlerData::signal_storage_type* currentSignals{nullptr};
+    while (!stream.isEOF())
+    {
+        line = removeExtraSpacesFromText(stream.getLine());
+        if (line.find(property.plantumlEndFullNote) == 0)
+        {
+            //Дополнительная очистка, нужна для корректного поиска функии в дальнейшей работе
+            removeExtraSpacesFromText(storage.back()->algorithmName);
+            return isOkRead;
+        }
+        if (isDescription)
+        {
+            appendString(line, storage.back()->description, '\n');
+            continue;
+        }
+        if ((tryToFindReference(line, property.plantumlNoteInputSignal)))
+        {
+            currentSignals = &storage.back()->inputSignal;
+            signalType = RAW_SIGNAL_TYPE::INPUT_SIGNAL;
+            continue;
+        }
+        else if ((tryToFindReference(line, property.plantumlNoteLocalSignal)))
+        {
+            currentSignals = &storage.back()->localSignal;
+            signalType = RAW_SIGNAL_TYPE::INNER_SIGNAL;
+            continue;
+        }
+        else if ((tryToFindReference(line, property.plantumlNoteOutputSignal)))
+        {
+            currentSignals = &storage.back()->outputSignal;
+            signalType = RAW_SIGNAL_TYPE::OUTPUT_SIGNAL;
+            continue;
+        }
+        else if ((tryToFindReference(line, property.plantumlNoteDescription)))
+            isDescription = true;
+        else
+        {
+            if (currentSignals == nullptr)
+            {
+                if (storage.back()->instruction.size() == 1)
+                    appendString(line, storage.back()->algorithmName, ' ');
+            }
+            else
+                isOkRead &= proceedNoteSignal(line, currentSignals, signalType);
+        }
+
+
+    }
+    log(LOG_TYPE::ERROR, std::format("Невозможно считать описание в алгоритме. Файл \"{}\"", storage.back()->path));
+    return false;
+}
+
+bool InitalHandler::proceedNoteSignal(std::string& line, InitialHandlerData::signal_storage_type* signalStorage,
+    const RAW_SIGNAL_TYPE signalType)
+{
+    //Запись сигнала <Название типа сигнала (входной, локальный, выходной)>: <Тип сигнала> - <Описание сигнала>
+    auto typeSeparatorPos = line.find(property.plantumlNoteSignalTypeSeparator);
+    auto titleSeparator = line.find(property.plantumlNoteSignalTitleSeparator);
+    //В таймере не проставляется тип
+    if ((typeSeparatorPos == std::string::npos && signalType == RAW_SIGNAL_TYPE::INNER_SIGNAL) ||
+        (typeSeparatorPos == std::string::npos && titleSeparator == std::string::npos))
+    {
+        if (signalStorage->empty())
+        {
+            log(LOG_TYPE::ERROR, std::format("Cигнал типа заполнен некорректно \"{}\" - отсутствует обозначение типа. Файл \"{}\"",
+                line, storage.back()->path));
+            return false;
+        }
+        appendString(line, signalStorage->back()->title, ' ');
+        
+    }
+    else
+    {
+       
+        std::string signalName, type;
+        if (typeSeparatorPos == std::string::npos && signalType != RAW_SIGNAL_TYPE::INNER_SIGNAL)
+            signalName = line.substr(0, titleSeparator);
+        else if (typeSeparatorPos != std::string::npos)
+        {
+            signalName = removeExtraSpacesFromText(line.substr(0, typeSeparatorPos));
+            type = removeExtraSpacesFromText((line.substr(typeSeparatorPos + 1, titleSeparator - (typeSeparatorPos + 1))));
+        }
+        else
+        {
+            log(LOG_TYPE::ERROR, std::format("Невозможно определить тип сигнала \"{}\". Файл \"{}\"", line, storage.back()->path));
+            return false;
+        }
+        std::string title;
+        if (titleSeparator != std::string::npos && titleSeparator < line.size())
+            title = removeExtraSpacesFromText(line.substr(titleSeparator + 1));
+        std::uint32_t elementCount{ 1 };
+        auto arrayPosStart = type.find(property.plantumlArrayStart);
+        auto arrayPosEnd = type.find(property.plantumlArrayEnd);
+        if (arrayPosStart != std::string::npos)
+        {
+            if (arrayPosEnd == std::string::npos)
+            {
+                log(LOG_TYPE::ERROR, std::format("Cигнал \"{}\" имеет некорректный тип \"{}\" - нет символа конца размера массива. Файл \"{}\"", signalName, type, storage.back()->path));
+                return false;
+            }
+            std::string count = type.substr(arrayPosStart+1, arrayPosEnd- arrayPosStart-1);
+            try
+            {
+                elementCount = static_cast<std::uint32_t>(std::stoul(count));
+            }
+            catch (...)
+            {
+                log(LOG_TYPE::ERROR, std::format("Cигнал \"{}\" имеет некорректный тип \"{}\" - размер массива не является числом. Файл \"{}\"", signalName, type, storage.back()->path));
+                return false;
+            }
+            type = type.substr(0, arrayPosStart);
+        }
+        else if (arrayPosEnd != std::string::npos)
+        {
+            log(LOG_TYPE::ERROR, std::format("Cигнал \"{}\" имеет некорректный тип \"{}\" - нет символа начала размера массива. Файл \"{}\"", signalName, type,storage.back()->path));
+            return false;
+        }
+        auto& copy = signalStorage->emplace_back(new InitialHandlerData::signal_type::element_type{});
+        copy->type = type;
+        copy->isPtr = arrayPosStart != std::string::npos;
+        copy->elementCount = elementCount;
+        copy->title = title;
+        copy->signalType = signalType;
+    }
     return true;
 }
 

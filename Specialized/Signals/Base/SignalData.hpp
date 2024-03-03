@@ -7,8 +7,8 @@
 struct SignalData : RawSignalData
 {
 	using element_count_type = std::uint32_t;
-	bool isPtr;						///< - Является ли сигнал указателем
-	element_count_type elementCount;		///< - Кол-во елементов
+	bool isPtr;								///< - Является ли сигнал указателем
+	element_count_type elementCount;		///< - Кол-во элементов
 };
 /*
 ///\brief - Тип, хранящий считанную информацию о структурах

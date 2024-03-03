@@ -12,5 +12,5 @@ enum class RAW_SIGNAL_TYPE : std::uint8_t
 	INNER_SIGNAL,		///< - Внутренний сигнал
 	TIMER,				///< - Таймер
 	CONST,				///< - Константа
-	STRUCT				///< - Структра
+	STRUCT				///< - Структура
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
-#include "SignalData.hpp"
+#include "../Base/SignalData.hpp"
 #include "../../../Common/Log/Logable.hpp"
 /**
 ///\brief Класс для хранения таблицы сигналов
